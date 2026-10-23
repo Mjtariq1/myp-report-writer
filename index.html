@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MYP Report Writer</title>
+<meta name="description" content="Write clear, personal MYP end-of-term report comments in minutes. Works offline.">
+<meta name="theme-color" content="#2F3E9E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2");font-weight:400;}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2");font-weight:700;}
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/bricolage-grotesque-latin-600-normal.woff2) format("woff2");font-weight:600;}
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/bricolage-grotesque-latin-800-normal.woff2) format("woff2");font-weight:800;}
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --sunk:#F5F7F9; --ink:#18222E; --muted:#56636F; --line:#D3DAE1;
+  --accent:#2F3E9E; --accent-soft:#E2E6F7; --on-accent:#FFFFFF;
+  --stamp:#A9670A; --stamp-bg:#FFF3DC; --ok:#2B7656; --warn:#A23B2A;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161C; --surface:#1A2129; --sunk:#151B22; --ink:#E5EAF0; --muted:#9BA8B5; --line:#2D3742;
+    --accent:#97A3FF; --accent-soft:#252C52; --on-accent:#11161C;
+    --stamp:#F0B44C; --stamp-bg:#33280F; --ok:#6CC79D; --warn:#F08C78;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161C; --surface:#1A2129; --sunk:#151B22; --ink:#E5EAF0; --muted:#9BA8B5; --line:#2D3742;
+  --accent:#97A3FF; --accent-soft:#252C52; --on-accent:#11161C;
+  --stamp:#F0B44C; --stamp-bg:#33280F; --ok:#6CC79D; --warn:#F08C78;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;}
+h1,h2{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;margin:0;line-height:1.1;}
+button,input,select,textarea{font:inherit;color:inherit;}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+.top{display:flex;flex-wrap:wrap;align-items:end;gap:16px 28px;padding:24px clamp(16px,4vw,40px) 18px;border-bottom:1px solid var(--line);background:var(--surface);}
+.top h1{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:800;letter-spacing:-0.02em;}
+.top p{margin:4px 0 0;color:var(--muted);font-size:.95rem;}
+.top .school{margin:0 0 8px;color:var(--accent);font-weight:700;font-size:.9rem;line-height:1.35;}
+.top .school span{display:block;color:var(--muted);font-weight:400;}
+.hint{font-size:.9rem;color:var(--muted);margin:0 0 10px;}
+.lvl .seg{flex-wrap:wrap;border-radius:12px;}
+.lvl .seg button{font-size:.86rem;padding:5px 12px;}
+.top-tools{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin-left:auto;}
+.field{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);}
+.field input,.field select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-size:.95rem;min-width:0;}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--sunk);}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;cursor:pointer;font-size:.92rem;color:var(--muted);}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);}
+.seg button:disabled{opacity:.45;cursor:not-allowed;}
+
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:0;min-height:calc(100vh - 110px);}
+.rail{border-right:1px solid var(--line);padding:20px 12px;background:var(--sunk);}
+.rail h2{font-size:.85rem;font-weight:600;color:var(--muted);padding:0 10px 8px;font-family:inherit;}
+.rail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
+.rail button{width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:8px;border:0;background:none;padding:9px 10px;border-radius:8px;cursor:pointer;text-align:left;}
+.rail button:hover{background:var(--surface);}
+.rail button[aria-current="true"]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent);font-weight:700;}
+.rail .count{font-size:.8rem;color:var(--muted);font-weight:400;white-space:nowrap;}
+
+main{padding:22px clamp(16px,3vw,36px) 60px;min-width:0;}
+.class-head{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:end;margin-bottom:14px;}
+.class-head h2{font-size:clamp(1.5rem,3vw,1.9rem);font-weight:600;margin-right:auto;}
+.class-head .field select{min-width:220px;}
+.class-head .field input{width:150px;}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px;}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.92rem;}
+.btn:hover{border-color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;}
+.btn.small{padding:5px 10px;font-size:.85rem;}
+.btn.danger{color:var(--warn);}
+.btn:disabled{opacity:.55;cursor:wait;}
+.critkey{font-size:.85rem;color:var(--muted);margin:0 0 14px;}
+.critkey b{color:var(--ink);font-weight:700;}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+.panel textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--sunk);color:var(--ink);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;resize:vertical;}
+.panel p{margin:0 0 10px;color:var(--muted);font-size:.9rem;max-width:72ch;}
+.panel .row-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.msg{font-size:.88rem;color:var(--muted);}
+.msg.err{color:var(--warn);}
+.msg.good{color:var(--ok);}
+.status-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:var(--accent-soft);margin-bottom:14px;font-size:.92rem;}
+.status-bar[hidden]{display:none;}
+
+.scroller{overflow-x:auto;}
+.roster{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);min-width:640px;}
+.rhead,.row{display:grid;grid-template-columns:minmax(200px,1fr) var(--critcols) 70px 64px 92px;align-items:center;gap:8px;}
+.rhead{padding:8px 4px;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--line);min-width:640px;}
+.rhead span{text-align:center;}
+.rhead span:first-child{text-align:left;}
+.st{border-bottom:1px solid var(--line);}
+.st.open{background:var(--surface);}
+.row{padding:8px 4px;}
+.name-btn{border:0;background:none;text-align:left;cursor:pointer;padding:4px 6px;border-radius:6px;}
+.name-btn:hover .nm{text-decoration:underline;}
+.nm{display:block;font-weight:700;}
+.sub{display:block;font-size:.8rem;color:var(--muted);}
+.mk{width:100%;max-width:56px;justify-self:center;text-align:center;padding:6px 2px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);}
+.mk.bad{border-color:var(--warn);}
+.tot{text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;}
+.stamp{justify-self:center;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 1.3rem/1 "Bricolage Grotesque",sans-serif;color:var(--stamp);background:var(--stamp-bg);border:2px solid var(--stamp);transform:rotate(-8deg);}
+.stamp.empty{background:none;border-style:dashed;border-color:var(--line);color:var(--muted);font-size:.9rem;transform:none;}
+.cstate{font-size:.8rem;color:var(--muted);text-align:right;padding-right:6px;}
+.cstate.done{color:var(--ok);font-weight:700;}
+
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px;padding:6px 14px 20px;}
+.detail[hidden]{display:none;}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:start;}
+.opts .wide{grid-column:1/-1;}
+.opts .field select,.opts .field input,.opts textarea{width:100%;}
+.opts textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--ink);min-height:60px;resize:vertical;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:.84rem;cursor:pointer;color:var(--ink);}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.legend{font-size:.85rem;color:var(--muted);margin-bottom:6px;display:block;}
+.comment textarea{width:100%;min-height:190px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--sunk);color:var(--ink);font-size:1rem;line-height:1.6;resize:vertical;}
+.comment .foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
+.comment .wc{margin-left:auto;font-size:.82rem;color:var(--muted);}
+
+.ptitle{margin:0 0 12px;font:600 1.15rem/1.2 "Bricolage Grotesque",sans-serif;}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;}
+.two p{font-size:.88rem;}
+#oneName{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink);min-width:0;}
+@media (max-width:860px){.two{grid-template-columns:1fr;}}
+.credit{padding:14px clamp(16px,4vw,40px);border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;background:var(--surface);}
+.credit a{color:var(--accent);}
+.dlg-p{color:var(--muted);font-size:.9rem;margin:0 0 12px;}
+dialog .field input,dialog .field select{width:100%;}
+dialog.wide-dlg{width:min(620px,94vw);}
+.guide{padding-left:20px;margin:0;line-height:1.5;}
+.guide li{margin-bottom:8px;}
+.empty{max-width:560px;}
+.group-h{margin:8px 0 -4px;font:600 .95rem/1.2 "Bricolage Grotesque",sans-serif;color:var(--ink);padding-top:8px;border-top:1px solid var(--line);}
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.unit-grid .field input,.unit-grid .field select{width:100%;}
+#unitPanel .legend{display:block;}
+.about-p{margin:0 0 12px;line-height:1.5;}
+.about-p a{color:var(--accent);}
+.rail .add{margin-top:10px;color:var(--accent);font-weight:700;}
+.ai-steps{margin:0 0 10px;padding-left:20px;color:var(--muted);font-size:.9rem;max-width:72ch;}
+.ai-steps li{margin-bottom:2px;}
+.links{display:flex;flex-wrap:wrap;gap:8px;}
+.links a{color:var(--accent);font-weight:700;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--surface);}
+.links a:hover{border-color:var(--accent);}
+#aiPrompt{min-height:110px;}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(420px,92vw);}
+dialog::backdrop{background:rgba(10,15,20,.45);}
+dialog h3{margin:0 0 12px;font:600 1.15rem/1.2 "Bricolage Grotesque",sans-serif;}
+dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink);}
+dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;}
+  .rail{border-right:0;border-bottom:1px solid var(--line);padding:10px 12px;}
+  .rail h2{display:none;}
+  .rail ul{flex-direction:row;overflow-x:auto;}
+  .rail button{white-space:nowrap;}
+  .detail{grid-template-columns:1fr;}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>MYP Report Writer</h1>
+    <p id="teacherLine">Enter marks, choose options for each student, and write end-of-term comments for parents.</p>
+  </div>
+  <div class="top-tools">
+    <div class="field">Help and settings<span style="display:flex;gap:6px"><button class="btn small" id="guideBtn" type="button">How to use</button><button class="btn small" id="aboutBtn" type="button">About</button><button class="btn small" id="meBtn" type="button">My details</button><button class="btn small" id="themeBtn" type="button">Theme: Auto</button></span></div>
+    <label class="field">Comment length
+      <select id="lengthSel"><option value="short">Short (2 to 3 sentences)</option><option value="medium">Medium (4 to 5 sentences)</option><option value="long">Long (6 to 8 sentences)</option></select>
+    </label>
+    <label class="field">Term
+      <input id="term" type="text" value="Term 1" style="width:130px">
+    </label>
+    <div class="field">Writing mode
+      <div class="seg" role="group" aria-label="Writing mode">
+        <button type="button" id="modeTpl" aria-pressed="true">Templates (offline)</button>
+        <button type="button" id="modeAi" aria-pressed="false">AI chatbot</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="rail" aria-label="Classes">
+    <h2>Classes</h2>
+    <ul id="classList"></ul>
+    <button class="btn small add" id="addClassBtn" type="button">Add class</button>
+  </nav>
+  <main>
+    <section class="panel empty" id="emptyState" hidden>
+      <h3 class="ptitle">Start by adding your first class</h3>
+      <p>Each class keeps its own students, marks and comments. You can add as many classes as you teach.</p>
+      <div class="row-btns"><button class="btn primary" id="emptyAdd" type="button">Add class</button><button class="btn" id="emptyGuide" type="button">How to use</button></div>
+    </section>
+    <div id="classView">
+    <div class="class-head">
+      <h2 id="clsTitle"></h2>
+      <div class="field">Class<span style="display:flex;gap:6px"><button class="btn small" id="renameBtn" type="button">Rename</button><button class="btn small danger" id="delClassBtn" type="button">Delete class</button></span></div>
+      <label class="field">Subject group
+        <select id="subject"></select>
+      </label>
+      <label class="field">Course name in comments
+        <input id="course" type="text">
+      </label>
+    </div>
+    <p class="critkey" id="critKey"></p>
+    <div class="actions">
+      <button class="btn" id="unitBtn" type="button">Unit and concepts</button>
+      <button class="btn" id="defaultsBtn" type="button">Set for whole class</button>
+      <button class="btn" id="pasteBtn" type="button">Paste marks</button>
+      <button class="btn primary" id="writeAllBtn" type="button">Write all comments</button>
+      <button class="btn" id="copyAllBtn" type="button">Copy all comments</button>
+      <button class="btn" id="exportBtn" type="button">Export</button>
+      <button class="btn danger" id="clearBtn" type="button">Clear comments</button>
+      <button class="btn" id="addBtn" type="button">Add students</button>
+      <button class="btn" id="backupBtn" type="button">Save backup</button>
+      <button class="btn" id="restoreBtn" type="button">Load backup</button>
+      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+      <span class="msg" id="saveMsg" aria-live="polite"></span>
+    </div>
+
+    <section class="panel" id="unitPanel" hidden>
+      <h3 class="ptitle">Unit and concepts for <span id="unitCls"></span></h3>
+      <p>Set these once for the class. They are used in AI comments and in long template comments.</p>
+      <div class="unit-grid">
+        <label class="field">Unit studied this term<input id="unitName" type="text" placeholder="e.g. Forces and motion"></label>
+        <label class="field">Global context<select id="unitGc"></select></label>
+      </div>
+      <span class="legend" style="margin-top:12px">Key concepts, pick up to 2</span><div class="chips" id="kcChips"></div>
+      <span class="legend" style="margin-top:12px">Related concepts for this subject, pick up to 3</span><div class="chips" id="rcChips"></div>
+      <label class="field" style="margin-top:10px">Other related concepts (separate with commas)<input id="rcOther" type="text"></label>
+      <div class="row-btns"><button class="btn" id="closeUnit" type="button">Done</button><span class="msg" id="unitMsg"></span></div>
+    </section>
+
+    <section class="panel" id="defaultsPanel" hidden>
+      <h3 class="ptitle">Set for the whole class</h3>
+      <p>Choose a level for any option, then click Apply. Every student in this class gets that level, and you can still change individual students afterwards. Options left on “Don’t change” stay as they are.</p>
+      <div class="unit-grid" id="defaultsGrid"></div>
+      <div class="row-btns"><button class="btn primary" id="applyDefaults" type="button">Apply to all students</button><button class="btn" id="closeDefaults" type="button">Close</button><span class="msg" id="defaultsMsg" aria-live="polite"></span></div>
+    </section>
+
+    <section class="panel" id="addPanel" hidden>
+      <h3 class="ptitle">Add students to <span id="addCls"></span></h3>
+      <div class="two">
+        <div>
+          <span class="legend">Option 1: paste a list</span>
+          <p>Copy names from Excel, Word, a PDF or a message and paste them here, one per line. Numbers such as 1. or 1) and bullet points are removed automatically. If marks follow a name, they are added too.</p>
+          <textarea id="listBox" spellcheck="false" placeholder="1. Smith Emma&#10;2. Khan Ali&#10;3. Petrova Anna"></textarea>
+          <div class="row-btns"><button class="btn primary" id="addList" type="button">Add these students</button></div>
+        </div>
+        <div>
+          <span class="legend">Option 2: add one at a time</span>
+          <p>Type a name and press Enter. The box clears so you can type the next one straight away.</p>
+          <div style="display:flex;gap:8px"><input id="oneName" type="text" autocomplete="off" placeholder="Surname Firstname"><button class="btn" id="addOne" type="button">Add</button></div>
+          <p class="msg" id="oneMsg" style="margin-top:8px"></p>
+        </div>
+      </div>
+      <div class="row-btns">
+        <button class="btn" id="closeAdd" type="button">Done</button>
+        <span class="msg" id="addMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="panel" id="pastePanel" hidden>
+      <p>Paste one student per line from Excel: name, then the criteria marks in order. Columns can be separated by tabs, commas or spaces. Lines with only marks are matched to the class list in order. A header row is ignored.</p>
+      <textarea id="pasteBox" spellcheck="false" placeholder="Smith Emma	6	5	7	6&#10;Khan Ali	4	5	5	3"></textarea>
+      <div class="row-btns">
+        <button class="btn primary" id="applyPaste" type="button">Apply marks</button>
+        <button class="btn" id="closePaste" type="button">Close</button>
+        <span class="msg" id="pasteMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="panel" id="aiPanel" hidden>
+      <ol class="ai-steps">
+        <li>Copy the prompt below.</li>
+        <li>Open an AI chatbot, paste the prompt and send it.</li>
+        <li>Copy the whole reply, paste it in the box at the bottom, and click Apply comments.</li>
+      </ol>
+      <textarea id="aiPrompt" readonly spellcheck="false"></textarea>
+      <div class="row-btns">
+        <button class="btn primary" id="copyPrompt" type="button">Copy prompt</button>
+        <span class="links"><a href="https://gemini.google.com/app" target="_blank" rel="noopener">Open Gemini</a><a href="https://chatgpt.com/" target="_blank" rel="noopener">Open ChatGPT</a><a href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude</a></span>
+        <span class="msg" id="promptMsg" aria-live="polite"></span>
+      </div>
+      <textarea id="aiReply" spellcheck="false" placeholder="Paste the chatbot’s reply here" style="margin-top:14px"></textarea>
+      <div class="row-btns">
+        <button class="btn primary" id="applyAi" type="button">Apply comments</button>
+        <button class="btn" id="closeAi" type="button">Close</button>
+        <span class="msg" id="aiMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+
+    <div class="status-bar" id="batchBar" hidden>
+      <span id="batchText"></span>
+      <button class="btn small" id="stopBtn" type="button">Stop</button>
+    </div>
+
+    <p class="hint">Click a student’s name to set engagement, behaviour, homework, effort, learner profile attributes and ATL skills.</p>
+    <div class="scroller">
+      <div class="rhead" id="rhead"></div>
+      <ol class="roster" id="roster"></ol>
+    </div>
+    </div>
+  </main>
+</div>
+<footer class="credit">MYP Report Writer, made by Muhammad Tariq. Contact <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a> or <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">LinkedIn</a>. <a href="privacy.html" target="_blank">Privacy policy</a>.</footer>
+<div hidden>
+</div>
+
+<dialog id="askDlg"><form method="dialog" id="askForm"><h3 id="askTitle"></h3><input id="askInput" type="text" autocomplete="off"><div class="row-btns"><button class="btn" value="cancel" type="submit" formnovalidate>Cancel</button><button class="btn primary" id="askOk" value="ok" type="submit">Save</button></div></form></dialog>
+
+<dialog id="aboutDlg"><form method="dialog">
+  <h3>MYP Report Writer</h3>
+  <p class="dlg-p">Version 1.5</p>
+  <p class="about-p">Write clear, personal end-of-term MYP report comments in minutes. Enter criteria marks, choose a few options for each student, and the app drafts comments for you, offline or with an AI chatbot.</p>
+  <p class="about-p"><b>Created by Muhammad Tariq</b><br>International science educator</p>
+  <p class="about-p">Email: <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a><br>LinkedIn: <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">linkedin.com/in/mtariq639</a></p>
+  <p class="dlg-p">Free for teachers to use and share. Your classes and comments stay on your own computer and are never uploaded.</p>
+  <div class="row-btns"><button class="btn primary" value="ok" type="submit">Close</button></div>
+</form></dialog>
+
+<dialog id="meDlg"><form method="dialog"><h3 id="meTitle">Welcome</h3>
+  <p class="dlg-p" id="meIntro">Add your details. They appear at the top of the app and in exported files.</p>
+  <label class="field">Your name<input id="meName" type="text" autocomplete="off" placeholder="e.g. Ms Aliya Serikova"></label>
+  <label class="field" style="margin-top:10px">School (optional)<input id="meSchool" type="text" autocomplete="off"></label>
+  <div class="row-btns"><button class="btn primary" value="ok" type="submit">Save</button></div>
+</form></dialog>
+
+<dialog id="guideDlg" class="wide-dlg"><form method="dialog"><h3>How to use</h3>
+  <ol class="guide">
+    <li><b>Add a class.</b> Click Add class on the left and give it a name, such as Grade 8B.</li>
+    <li><b>Add students.</b> Paste your class list (numbered or not) or type names one by one and press Enter.</li>
+    <li><b>Choose the subject.</b> Pick the MYP subject group and type the course name used in comments, such as Physics. Click Unit and concepts to add the unit, global context, key concepts and related concepts.</li>
+    <li><b>Enter marks.</b> Type criteria marks (0 to 8) on each row, or click Paste marks and paste from Excel. The final grade is worked out for you.</li>
+    <li><b>Set student options.</b> Use Set for whole class to give everyone a starting level in one click. Then click a student’s name to change their engagement, behaviour, progress, attendance, academic integrity, strengths, learner profile and ATL skills.</li>
+    <li><b>Write comments.</b> Choose a comment length at the top, then click Write all comments. Templates work offline. AI chatbot mode gives you a prompt to paste into Gemini, ChatGPT or Claude, then you paste the reply back.</li>
+    <li><b>Check and send.</b> Read and edit each comment, then copy it or use Export to move comments into ManageBac, Toddle or your school’s system.</li>
+    <li><b>Keep a backup.</b> Everything saves on this computer automatically. Use Save backup to keep a copy or move to another PC.</li>
+  </ol>
+  <div class="row-btns"><button class="btn primary" value="ok" type="submit">Got it</button></div>
+</form></dialog>
+
+<dialog id="clearDlg"><form method="dialog"><h3>Clear comments</h3>
+  <p class="dlg-p">This removes written comments only. Students, marks and options stay. It can’t be undone, so save a backup first if you might need them.</p>
+  <div class="row-btns" style="flex-wrap:wrap"><button class="btn" value="cancel" type="submit">Cancel</button><button class="btn danger" value="class" type="submit" id="clearClassBtn">Clear this class</button><button class="btn danger" value="all" type="submit">Clear every class</button></div>
+</form></dialog>
+
+<dialog id="exportDlg" class="wide-dlg"><form method="dialog"><h3>Export comments</h3>
+  <p class="dlg-p">Works with ManageBac, Toddle, Sana, PowerSchool, Veracross, iSAMS, Engage and other reporting systems. Most systems let you paste each comment into the student’s report, so open the Excel file beside the system and copy across. If your school imports comments in bulk, send the Excel file to your coordinator.</p>
+  <label class="field">What to export<select id="expScope"><option value="class">This class</option><option value="all">Every class</option></select></label>
+  <div class="row-btns" style="flex-wrap:wrap;justify-content:flex-start">
+    <button class="btn primary" type="button" id="expCsv">Excel file (.csv)</button>
+    <button class="btn" type="button" id="expDoc">Word document</button>
+    <button class="btn" type="button" id="expCopy">Copy as text</button>
+  </div>
+  <p class="msg" id="expMsg" style="margin:10px 0 0"></p>
+  <div class="row-btns"><button class="btn" value="cancel" type="submit">Close</button></div>
+</form></dialog>
+
+<script>
+/* ---------- Reference data ---------- */
+const SUBJECTS = {
+  lal:{name:"Language and literature",crit:[
+    ["Analysing","analysing texts in more depth and supporting ideas with evidence"],
+    ["Organizing","organising ideas into clear, well-structured responses"],
+    ["Producing text","developing original ideas with more detail and creativity"],
+    ["Using language","using a wider range of vocabulary and more accurate grammar"]]},
+  lac:{name:"Language acquisition",crit:[
+    ["Listening","listening for detail in spoken texts"],
+    ["Reading","reading for deeper meaning and detail"],
+    ["Speaking","speaking with greater fluency and confidence"],
+    ["Writing","writing with a wider range of vocabulary and structures"]]},
+  ins:{name:"Individuals and societies",crit:[
+    ["Knowing and understanding","using subject-specific terminology accurately"],
+    ["Investigating","planning and carrying out focused research"],
+    ["Communicating","organising information clearly and referencing sources"],
+    ["Thinking critically","evaluating sources and considering different perspectives"]]},
+  sci:{name:"Sciences",crit:[
+    ["Knowing and understanding","applying scientific knowledge to unfamiliar problems"],
+    ["Inquiring and designing","writing testable hypotheses and designing fair investigations"],
+    ["Processing and evaluating","presenting and interpreting data and evaluating methods"],
+    ["Reflecting on the impacts of science","explaining how science affects people, society and the environment"]]},
+  mat:{name:"Mathematics",crit:[
+    ["Knowing and understanding","selecting and applying methods accurately in unfamiliar problems"],
+    ["Investigating patterns","describing patterns as general rules and justifying them"],
+    ["Communicating","showing working clearly with correct notation"],
+    ["Applying mathematics in real-life contexts","applying mathematics to real-life problems and checking answers"]]},
+  art:{name:"Arts",crit:[
+    ["Investigating","researching artists and art forms in more depth"],
+    ["Developing","developing and refining ideas through planning"],
+    ["Creating or performing","refining technical skills when creating or performing"],
+    ["Evaluating","reflecting on and evaluating finished work"]]},
+  phe:{name:"Physical and health education",crit:[
+    ["Knowing and understanding","applying health and fitness knowledge to new situations"],
+    ["Planning for performance","designing and analysing training plans"],
+    ["Applying and performing","applying skills and tactics consistently in performance"],
+    ["Reflecting and improving performance","setting goals and reflecting on performance"]]},
+  des:{name:"Design",crit:[
+    ["Inquiring and analysing","researching the problem and analysing existing products"],
+    ["Developing ideas","developing a wider range of ideas and detailed specifications"],
+    ["Creating the solution","following the plan to create a well-made solution"],
+    ["Evaluating","testing the solution against the design specification"]]},
+  idu:{name:"Interdisciplinary learning",crit:[
+    ["Evaluating","evaluating how different subjects connect"],
+    ["Synthesizing","combining knowledge from different subjects to create new understanding"],
+    ["Reflecting","reflecting in more depth on interdisciplinary learning"]]},
+  pp:{name:"Personal project",crit:[
+    ["Planning","setting clear goals and planning the project carefully"],
+    ["Applying skills","applying ATL skills more consistently throughout the project"],
+    ["Reflecting","reflecting in more depth on the learning and the product"]]}
+};
+const BOUNDS = {
+  4:[[1,5],[6,9],[10,14],[15,18],[19,23],[24,27],[28,32]],
+  3:[[1,3],[4,6],[7,9],[10,14],[15,18],[19,21],[22,24]]
+};
+const LEVELS = {
+  eng:["Excellent","Good","Satisfactory","Needs improvement"],
+  beh:["Exemplary","Good","Inconsistent","Needs improvement"],
+  hw:["Always on time","Mostly on time","Sometimes late","Often missing"],
+  eff:["Outstanding","Good","Satisfactory","Limited"],
+  prog:["Big improvement","Improved","Maintained","Declined"],
+  att:["Excellent","Good","Some concerns","Frequent concerns"],
+  ai:["Excellent","Good","Concern"]
+};
+const LEVEL_LABELS = {eng:"Engagement",beh:"Behaviour",hw:"Homework",eff:"Effort",prog:"Progress since last term",att:"Attendance and punctuality",ai:"Academic integrity"};
+const OPTIONAL = ["prog","att","ai"];
+const LP = [["Inquirers","inquiring"],["Knowledgeable","knowledgeable"],["Thinkers","thoughtful"],["Communicators","articulate"],["Principled","principled"],["Open-minded","open-minded"],["Caring","caring"],["Risk-takers","courageous"],["Balanced","balanced"],["Reflective","reflective"]];
+const ATL_TREE = [
+  ["Communication",[["Communication",[
+    ["comm","Communication skills (general)","communication skills"],
+    ["comm-vocab","Using subject-specific vocabulary","communication skills, especially using subject-specific vocabulary"],
+    ["comm-present","Presenting ideas clearly","communication skills, especially presenting ideas clearly"],
+    ["comm-write","Structured written explanations","communication skills, especially writing structured explanations"],
+    ["comm-listen","Listening and giving feedback","communication skills, especially listening and giving feedback"]]]]],
+  ["Social",[["Collaboration",[
+    ["collab","Collaboration skills (general)","collaboration skills"],
+    ["collab-team","Working effectively in groups","collaboration skills, especially working effectively in groups"],
+    ["collab-lead","Taking responsibility and leading","collaboration skills, especially taking responsibility and leading others"],
+    ["collab-help","Helping and encouraging others","collaboration skills, especially helping and encouraging others"]]]]],
+  ["Self-management",[
+    ["Organisation",[
+      ["org","Organisation skills (general)","organisation skills"],
+      ["org-time","Managing time and meeting deadlines","organisation skills, especially managing time and meeting deadlines"],
+      ["org-goals","Setting and working towards goals","organisation skills, especially setting and working towards goals"],
+      ["org-notes","Keeping clear, complete notes","organisation skills, especially keeping clear and complete notes"]]],
+    ["Affective",[
+      ["aff","Affective skills (general)","affective skills"],
+      ["aff-resil","Resilience with challenging tasks","affective skills, especially resilience when tasks are challenging"],
+      ["aff-focus","Staying focused and motivated","affective skills, especially staying focused and motivated"]]],
+    ["Reflection",[
+      ["refl","Reflection skills (general)","reflection skills"],
+      ["refl-feedback","Acting on feedback","reflection skills, especially acting on feedback"],
+      ["refl-self","Evaluating personal learning","reflection skills, especially evaluating personal learning"]]]]],
+  ["Research",[
+    ["Information literacy",[
+      ["info","Information literacy (general)","information literacy skills"],
+      ["info-sources","Finding and using reliable sources","information literacy skills, especially finding and using reliable sources"],
+      ["info-data","Collecting and recording data","information literacy skills, especially collecting and recording data"],
+      ["info-ref","Referencing sources accurately","information literacy skills, especially referencing sources accurately"]]],
+    ["Media literacy",[
+      ["media","Media literacy (general)","media literacy skills"],
+      ["media-eval","Evaluating media sources","media literacy skills, especially evaluating different media sources"]]]]],
+  ["Thinking",[
+    ["Critical thinking",[
+      ["crit","Critical thinking (general)","critical thinking skills"],
+      ["crit-analyse","Analysing and interpreting data","critical thinking skills, especially analysing and interpreting data"],
+      ["crit-eval","Evaluating evidence and arguments","critical thinking skills, especially evaluating evidence and arguments"],
+      ["crit-problem","Solving unfamiliar problems","critical thinking skills, especially solving unfamiliar problems"]]],
+    ["Creative thinking",[
+      ["crea","Creative thinking (general)","creative thinking skills"],
+      ["crea-ideas","Generating original ideas","creative thinking skills, especially generating original ideas"],
+      ["crea-design","Designing new solutions","creative thinking skills, especially designing new solutions"]]],
+    ["Transfer",[
+      ["trans","Transfer skills (general)","transfer skills"],
+      ["trans-apply","Applying knowledge in new contexts","transfer skills, especially applying knowledge in new contexts"],
+      ["trans-connect","Connecting ideas across subjects","transfer skills, especially making connections between subjects"]]]]]
+];
+const ATL_MAP = {};
+ATL_TREE.forEach(([cat,clusters])=>clusters.forEach(([cl,skills])=>skills.forEach(([id,label,phrase])=>ATL_MAP[id]={cat,cl,label,phrase})));
+const ATL_OLD = {"communication":"comm","collaboration":"collab","organisation":"org","affective":"aff","reflection":"refl","information literacy":"info","media literacy":"media","critical thinking":"crit","creative thinking":"crea","transfer":"trans"};
+const GC = ["Identities and relationships","Orientation in space and time","Personal and cultural expression","Scientific and technical innovation","Globalization and sustainability","Fairness and development"];
+const KC = ["Aesthetics","Change","Communication","Communities","Connections","Creativity","Culture","Development","Form","Global interactions","Identity","Logic","Perspective","Relationships","Systems","Time, place and space"];
+const RC = {
+  sci:["Balance","Consequences","Energy","Environment","Evidence","Form","Function","Interaction","Models","Movement","Patterns","Transformation"],
+  mat:["Approximation","Change","Equivalence","Generalization","Justification","Measurement","Model","Pattern","Quantity","Representation","Simplification","Space","System","Validity"],
+  lal:["Audience imperatives","Character","Context","Genres","Intertextuality","Point of view","Purpose","Self-expression","Setting","Structure","Style","Theme"],
+  lac:["Accent","Audience","Context","Conventions","Empathy","Form","Function","Idiom","Meaning","Message","Patterns","Point of view","Purpose","Structure","Word choice"],
+  ins:["Causality","Choice","Culture","Equity","Globalization","Identity","Innovation and revolution","Perspective","Power","Processes","Resources","Sustainability"],
+  art:["Audience","Boundaries","Composition","Expression","Genre","Innovation","Interpretation","Narrative","Presentation","Representation","Structure","Style","Visual culture"],
+  phe:["Adaptation","Balance","Choice","Energy","Environment","Function","Interaction","Movement","Perspectives","Refinement","Space","Systems"],
+  des:["Adaptation","Collaboration","Ergonomics","Evaluation","Form","Function","Innovation","Invention","Markets and trends","Perspective","Resources","Sustainability"],
+  idu:[], pp:[]
+};
+const STRENGTHS = {
+  sci:["practical lab work","planning investigations","drawing graphs","analysing data","scientific calculations","written explanations","using scientific vocabulary","research tasks"],
+  mat:["problem solving","algebra","accurate calculations","mathematical reasoning","investigations","drawing and reading graphs","geometry","real-life applications"],
+  lal:["creative writing","analytical essays","oral presentations","close reading","class discussion","using rich vocabulary","poetry analysis","research"],
+  lac:["speaking with confidence","pronunciation","listening","reading comprehension","writing","vocabulary","grammar accuracy","presentations"],
+  ins:["research","source analysis","extended writing","discussion and debate","map skills","interpreting data","case studies","presentations"],
+  art:["technical skill","original ideas","the process journal","performance","composition","reflection","research into artists","rehearsal and teamwork"],
+  phe:["team sports","individual performance","fitness","tactics and strategy","leadership in games","planning training","sportsmanship","reflecting on performance"],
+  des:["research","sketching ideas","technical drawings","digital design","making the product","testing","the design folder","evaluation"],
+  idu:["making connections","research","planning","presenting","reflection","independent work","creativity","teamwork"],
+  pp:["goal setting","research","time management","product quality","reflection","presentation","independent work","creativity"]
+};
+const PR = {
+  he:{s:"he",o:"him",p:"his",r:"himself",label:"he/him"},
+  she:{s:"she",o:"her",p:"her",r:"herself",label:"she/her"},
+  they:{s:"they",o:"them",p:"their",r:"themselves",label:"they/them"}
+};
+
+/* ---------- State ---------- */
+const newId = () => Math.random().toString(36).slice(2,10);
+function mkStudent(name, g, n){
+  const parts = name.trim().split(/\s+/);
+  return {id:newId(), name:name.trim(), first:parts[parts.length-1], pr:g==="f"?"she":g==="m"?"he":"they",
+    marks:Array(n).fill(null), eng:1, beh:1, hw:1, eff:1, prog:null, att:null, ai:null, lpS:[], lpG:"", str:[], atlS:"", atlD:"", note:"", comment:"", v:0};
+}
+function normStudent(st, n){
+  if(!Array.isArray(st.lpS)) st.lpS = Array.isArray(st.lp) ? st.lp.slice(0,2) : [];
+  delete st.lp;
+  ["lpG","atlS","atlD","note","comment"].forEach(k=>{ if(typeof st[k]!=="string") st[k]=""; });
+  if(ATL_OLD[st.atlS]) st.atlS = ATL_OLD[st.atlS];
+  if(ATL_OLD[st.atlD]) st.atlD = ATL_OLD[st.atlD];
+  if(st.atlS && !ATL_MAP[st.atlS]) st.atlS = "";
+  if(st.atlD && !ATL_MAP[st.atlD]) st.atlD = "";
+  if(!Array.isArray(st.str)) st.str = [];
+  OPTIONAL.forEach(k=>{ if(!(k in st)) st[k] = null; });
+  ["eng","beh","hw","eff"].forEach(k=>{ if(typeof st[k]!=="number") st[k] = 1; });
+  if(!Array.isArray(st.marks)) st.marks = [];
+  while(st.marks.length<n) st.marks.push(null);
+  if(typeof st.v!=="number") st.v = 0;
+  if(!st.id) st.id = newId();
+  return st;
+}
+function normClass(c){
+  if(!SUBJECTS[c.subject]) c.subject = "sci";
+  ["unit","gc","rcOther","course","label"].forEach(k=>{ if(typeof c[k]!=="string") c[k] = k==="label" ? (c.id||"Class") : ""; });
+  if(!Array.isArray(c.kc)) c.kc = [];
+  if(!Array.isArray(c.rc)) c.rc = [];
+  if(!Array.isArray(c.students)) c.students = [];
+  const n = SUBJECTS[c.subject].crit.length;
+  c.students.forEach(st=>normStudent(st, n));
+  return c;
+}
+const state = {settings:{term:"Term 1", mode:"template", teacher:"", school:"", length:"medium", theme:"auto"}, order:[], classes:{}, current:null, open:null};
+let firstRun = true;
+let aiTargets = [];
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
+const cls = () => state.classes[state.current];
+const subj = c => SUBJECTS[c.subject] || SUBJECTS.sci;
+const letters = n => ["A","B","C","D"].slice(0,n);
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function pick(arr, seed){return arr[hash(seed)%arr.length];}
+function clean(t){
+  return String(t||"").replace(/\s*[\u2014\u2013]\s*/g,", ").replace(/\s+,/g,",").replace(/,\s*,/g,",").replace(/\s{2,}/g," ").replace(/^["\u201C]|["\u201D]$/g,"").trim();
+}
+function total(st){ if(st.marks.some(m=>m==null)) return null; return st.marks.reduce((a,b)=>a+b,0); }
+function grade(st){
+  const t = total(st); if(t==null || t<=0) return null;
+  const b = BOUNDS[st.marks.length]; if(!b) return null;
+  for(let i=0;i<b.length;i++) if(t>=b[i][0] && t<=b[i][1]) return i+1;
+  return null;
+}
+function band(m){ if(m==null) return "not assessed"; if(m<=0) return "not achieved"; if(m<=2) return "limited"; if(m<=4) return "adequate"; if(m<=6) return "substantial"; return "excellent"; }
+function words(t){ return (t.trim().match(/\S+/g)||[]).length; }
+
+/* ---------- Template writer ---------- */
+const ENG = [
+  ["{N} has been a highly engaged member of the class this term, contributing thoughtful ideas to discussions and practical work in {where}.",
+   "{N} has approached {where} with genuine enthusiasm this term and takes an active part in every lesson.",
+   "{N} brings real curiosity to {where} and has participated with energy and focus throughout the term."],
+  ["{N} has engaged well in {where} this term and contributes positively to class activities.",
+   "{N} has shown a positive attitude towards {where} this term and usually takes an active part.",
+   "{N} participates well in {where} and has made steady progress this term."],
+  ["{N} has shown a satisfactory level of engagement in {where} this term, although contributing more often in class would help.",
+   "{N} has been reasonably engaged in {where} this term, and sharing ideas more often would support further progress."],
+  ["{N} has found it difficult to stay focused in {where} this term, and more active participation would lead to better progress.",
+   "{N} needs to engage more actively in {where}, as participation this term has been limited."]
+];
+const PROG = [
+  ["{N} has made excellent progress since last term, and the improvement is clear across {course}.","There has been a significant improvement in {Ns} work since last term."],
+  ["{N} has made good progress since last term.","{Ns} work has improved since last term, which is pleasing to see."],
+  ["{N} has maintained a consistent standard of work since last term.","{Ns} achievement has remained steady since last term."],
+  ["{Ns} achievement has dipped since last term, and regaining earlier momentum should be a priority.","{Ns} results are lower than last term, so extra focus will be needed next term."]
+];
+const ACH = {
+  high:["A final grade of {g} is an excellent result, with particular strength shown in {strong}.",
+        "The student’s final grade of {g} reflects a high level of achievement, especially in {strong}."],
+  mid:["The student achieved a grade {g} overall, showing secure understanding and particular strength in {strong}.",
+       "A final grade of {g} reflects good progress, with the strongest work seen in {strong}."],
+  low:["The student achieved a grade {g} this term, with the best work seen in {strong}.",
+       "A final grade of {g} shows there is room to grow, although there was real promise in {strong}."],
+  none:["The strongest work this term was in {strong}."]
+};
+const STR = ["{N} has shown particular skill in {strs}.","Particular strengths this term have included {strs}."];
+const LPATL = {
+  both:["{N} has shown the qualities of {lpA} learner, and the student’s {atlC} are a real strength.",
+        "As {lpA} learner, the student has also shown strong {atl}."],
+  lp:["{N} has shown the qualities of {lpA} learner in class.","In lessons, {N} has been {lpA} member of the class."],
+  atl:["The student has shown well-developed {atl}.","{N} has shown real strength in {atl}."]
+};
+const BEH = ["Behaviour in class is exemplary and {N} is a positive role model for others","Behaviour in class is consistently good","Behaviour has been inconsistent at times","Behaviour has often needed reminders this term"];
+const HW = ["homework is always completed carefully and on time","homework is usually completed on time","homework is sometimes handed in late","homework has frequently been missing"];
+const ATT = ["Attendance and punctuality have been excellent.","Attendance and punctuality have been good.","Attendance and punctuality have been a concern at times, and regular attendance will support progress.","Frequent absence or lateness has affected learning this term, and improving attendance is important."];
+const AIN = ["{N} consistently shows strong academic integrity and submits original work.","Work submitted has been the student’s own, showing good academic integrity.","Academic integrity has been a concern this term, and all submitted work must be the student’s own."];
+const DEV = {
+  normal:["To make further progress, {N} should focus on {focus}{atlpart}{lpg}.","Next term, {N} should concentrate on {focus}{atlpart}{lpg}.","Looking ahead, the student should work on {focus}{atlpart}{lpg}."],
+  top:["Next term, {N} should seek out more demanding extension tasks{atlpart}{lpg}.","To build on this success, the student should take on more challenging extension work{atlpart}{lpg}."],
+  effort:["Greater effort and consistency, particularly in {focus}, will help {N} reach full potential.","With more consistent effort, especially in {focus}, {N} is capable of achieving much more."],
+  nomarks:["Next term, {N} should continue developing {atlD}{lpg}."],
+  lpgOnly:["Next term, {N} should aim to become a more {lpGadj} learner."]
+};
+const lpAdj = name => (LP.find(x=>x[0]===name)||[])[1] || "";
+const lowerFirst = t => t ? t.charAt(0).toLowerCase()+t.slice(1) : t;
+const andList = arr => arr.length<=1 ? (arr[0]||"") : arr.slice(0,-1).join(", ")+" and "+arr[arr.length-1];
+function relatedConcepts(c){
+  const extra = (c.rcOther||"").split(",").map(x=>x.trim()).filter(Boolean);
+  return c.rc.concat(extra);
+}
+
+function templateComment(c, st){
+  const sj = subj(c), L = letters(sj.crit.length), len = state.settings.length || "medium";
+  const seed = k => st.name + "|" + k + "|" + st.v;
+  const marked = st.marks.map((m,i)=>({m,i})).filter(x=>x.m!=null);
+  let strong = null, weak = null;
+  if(marked.length){
+    strong = marked.reduce((a,b)=>b.m>a.m?b:a);
+    weak = marked.reduce((a,b)=>b.m<a.m?b:a);
+  }
+  const critName = i => lowerFirst(sj.crit[i][0])+" (Criterion "+L[i]+")";
+  const adjs = st.lpS.map(lpAdj).filter(Boolean).slice(0,2);
+  const lpA = adjs.length ? (/^[aeiou]/i.test(adjs[0])?"an ":"a ")+adjs.join(" and ") : "";
+  const g = grade(st), course = c.course||sj.name;
+  const atl = st.atlS ? ATL_MAP[st.atlS].phrase : "", atlD = st.atlD ? ATL_MAP[st.atlD].phrase : "";
+  const lpGadj = st.lpG ? lpAdj(st.lpG) : "";
+  const map = {
+    N:st.first, Ns:st.first+(/s$/i.test(st.first)?"’":"’s"), course,
+    where: c.unit.trim() ? "our unit on "+c.unit.trim() : course+" lessons",
+    g, strong:strong?critName(strong.i):"", focus:weak?sj.crit[weak.i][1]:"",
+    lpA, atl, atlC: atl + (atl.includes(",") ? "," : ""), atlD, lpGadj, strs: andList(st.str.slice(0,2)),
+    atlpart: atlD ? ", while also developing "+atlD : "",
+    lpg: (len!=="short" && lpGadj) ? ", and aim to become a more "+lpGadj+" learner" : ""
+  };
+  const fill = t => t.replace(/\{(\w+)\}/g,(m,k)=>k in map ? map[k] : m);
+  const out = [];
+  const short = len==="short", long = len==="long";
+  out.push(pick(ENG[st.eng], seed("eng")));
+  if(!short && st.prog!=null) out.push(pick(PROG[st.prog], seed("prog")));
+  if(strong){
+    const key = g==null ? "none" : g>=6 ? "high" : g>=4 ? "mid" : "low";
+    out.push(pick(ACH[key], seed("ach")));
+  }
+  const hasLA = lpA || atl;
+  if(!short && st.str.length && (long || !hasLA)) out.push(pick(STR, seed("str")));
+  if(!short && hasLA){
+    if(lpA && atl) out.push(pick(LPATL.both, seed("lp")));
+    else if(lpA) out.push(pick(LPATL.lp, seed("lp")));
+    else out.push(pick(LPATL.atl, seed("lp")));
+  }
+  if(long && (c.kc.length || c.gc)){
+    const intro = c.unit.trim() ? "The unit" : "This term’s learning";
+    const kcs = c.kc.length ? "the key concept"+(c.kc.length>1?"s":"")+" of "+andList(c.kc.map(lowerFirst)) : "";
+    const gc = c.gc ? lowerFirst(c.gc) : "";
+    let t = kcs && gc ? `${intro} explored ${kcs} through the global context of ${gc}` : kcs ? `${intro} explored ${kcs}` : `${intro} was framed by the global context of ${gc}`;
+    const rcs = relatedConcepts(c).slice(0,3).map(lowerFirst);
+    if(rcs.length) t += `, including the related concept${rcs.length>1?"s":""} of ${andList(rcs)}`;
+    t += ", and the student " + (g>=6 ? "showed a deep understanding of these ideas." : g>=4 ? "developed a sound understanding of these ideas." : "is building an understanding of these ideas.");
+    out.push(t);
+  }
+  const behConcern = st.beh>=2 || st.hw>=2;
+  if(!short || behConcern){
+    const conj = (st.beh<=1)===(st.hw<=1) ? ", and " : ", although ";
+    out.push(BEH[st.beh] + conj + HW[st.hw] + ".");
+  }
+  if(st.att!=null && (st.att>=2 || long)) out.push(ATT[st.att]);
+  if(st.ai!=null && (st.ai===2 || (long && st.ai===0))) out.push(AIN[st.ai]);
+  let devDone = false;
+  if(weak){
+    if(st.eff>=2){ out.push(pick(DEV.effort, seed("dev"))); }
+    else if(weak.m>=7){ out.push(pick(DEV.top, seed("dev"))); devDone = true; }
+    else { out.push(pick(DEV.normal, seed("dev"))); devDone = true; }
+  } else if(atlD){ out.push(DEV.nomarks[0]); devDone = true; }
+  if(!devDone && map.lpg) out.push(DEV.lpgOnly[0]);
+  return clean(out.map(fill).join(" "));
+}
+
+/* ---------- AI writer ---------- */
+function brief(c, st){
+  const sj = subj(c), L = letters(sj.crit.length);
+  const g = grade(st), t = total(st), max = sj.crit.length*8;
+  const opt = k => st[k]==null ? "not set" : LEVELS[k][st[k]];
+  return [
+    "ID: "+st.id,
+    "First name: "+st.first,
+    "Criteria (each out of 8): "+sj.crit.map((cr,i)=>"Criterion "+L[i]+" "+cr[0]+" "+(st.marks[i]==null?"not assessed":st.marks[i]+"/8 ("+band(st.marks[i])+")")).join("; "),
+    "Final MYP grade: "+(g==null?"not available, do not mention a grade":g+" (total "+t+"/"+max+")"),
+    "Progress since last term: "+opt("prog"),
+    "Engagement: "+LEVELS.eng[st.eng],
+    "Behaviour: "+LEVELS.beh[st.beh],
+    "Homework: "+LEVELS.hw[st.hw],
+    "Effort: "+LEVELS.eff[st.eff],
+    "Attendance and punctuality: "+opt("att"),
+    "Academic integrity: "+opt("ai"),
+    "Specific strengths: "+(st.str.length?st.str.join(", "):"none given"),
+    "Learner profile attributes shown strongly: "+(st.lpS.length?st.lpS.join(", "):"none given"),
+    "Learner profile attribute to grow: "+(st.lpG||"none given"),
+    "ATL skill strength: "+(st.atlS?ATL_MAP[st.atlS].cat+" ("+ATL_MAP[st.atlS].cl+"): "+ATL_MAP[st.atlS].label:"none given"),
+    "ATL skill to develop: "+(st.atlD?ATL_MAP[st.atlD].cat+" ("+ATL_MAP[st.atlD].cl+"): "+ATL_MAP[st.atlD].label:"none given"),
+    "Teacher note: "+(st.note.trim()||"none")
+  ].join("\n");
+}
+const LENGTH_RULE = {
+  short:"2 to 3 sentences, 40 to 60 words",
+  medium:"4 to 5 sentences, 70 to 95 words",
+  long:"6 to 8 sentences, 110 to 150 words"
+};
+function rules(c){
+  const sj = subj(c), rcs = relatedConcepts(c);
+  const unit = [
+    c.unit.trim() ? "Unit studied: "+c.unit.trim()+"." : "",
+    c.gc ? "Global context: "+c.gc+"." : "",
+    c.kc.length ? "Key concept(s): "+c.kc.join(", ")+"." : "",
+    rcs.length ? "Related concept(s): "+rcs.join(", ")+"." : ""
+  ].filter(Boolean).join(" ");
+  return "You write end-of-term MYP school report comments for parents.\n"+
+  "Course: "+(c.course||sj.name)+" (MYP subject group: "+sj.name+"). Class: "+c.label+". Reporting period: "+state.settings.term+".\n"+
+  (unit ? unit+"\n" : "")+
+  "\nRules for every comment:\n"+
+  "- Written for parents. Never use pronouns such as he, she, him, her, his, hers, they, them or their. Refer to the student by first name, or as 'the student' where the name would repeat too often, and shape sentences so neither is overused.\n"+
+  "- Length: "+LENGTH_RULE[state.settings.length||"medium"]+", one paragraph. Warm, professional, natural British English, like an experienced MYP teacher wrote it.\n"+
+  "- Mention the final MYP grade if one is given, the strongest criterion by its name, and one specific area to develop based on the weakest criterion, phrased as practical advice for this subject.\n"+
+  "- Use the unit, global context and concepts naturally if given (only in longer comments if space is short). Use MYP language for learner profile attributes and ATL skills.\n"+
+  "- Weave in progress, engagement, behaviour, homework, effort, attendance, academic integrity and specific strengths where they are set. Always mention any concern. Skip details marked 'not set' or 'none given'. Use the teacher note if there is one.\n"+
+  "- Be honest but encouraging. Do not invent achievements, topics or details that are not given.\n"+
+  "- Do not use em dashes, en dashes, semicolons, bullet points, headings, quotation marks or emojis. Avoid clichés such as 'a pleasure to teach'.\n"+
+  "- Vary sentence openings and structure from student to student so no two comments read alike.";
+}
+
+/* ---------- Rendering ---------- */
+function renderRail(){
+  $("classList").innerHTML = state.order.map(id=>{
+    const c = state.classes[id], done = c.students.filter(s=>s.comment.trim()).length;
+    return `<li><button type="button" data-cls="${id}" aria-current="${id===state.current}">${esc(c.label)}<span class="count">${done}/${c.students.length}</span></button></li>`;
+  }).join("");
+}
+function renderHead(){
+  const c = cls(), sj = subj(c), L = letters(sj.crit.length);
+  $("clsTitle").textContent = c.label;
+  $("course").value = c.course;
+  $("subject").value = c.subject;
+  $("critKey").innerHTML = sj.crit.map((cr,i)=>`<b>${L[i]}</b> ${esc(cr[0])}`).join("&ensp; ") + `&ensp; Each criterion is marked out of 8.`;
+  document.documentElement.style.setProperty("--critcols", `repeat(${sj.crit.length}, 56px)`);
+  $("rhead").innerHTML = `<span>Student</span>${L.map((l,i)=>`<span title="${esc(sj.crit[i][0])}">${l}</span>`).join("")}<span>Total</span><span>Grade</span><span></span>`;
+}
+function rowInner(c, st){
+  const sj = subj(c), g = grade(st), t = total(st), max = sj.crit.length*8, open = state.open===st.id;
+  return `<div class="row">
+    <button class="name-btn" type="button" data-act="toggle" aria-expanded="${open}"><span class="nm">${esc(st.name)}</span><span class="sub">${open?"Hide options":"Set options"}</span></button>
+    ${st.marks.map((m,i)=>`<input class="mk" type="number" min="0" max="8" inputmode="numeric" data-k="mark" data-i="${i}" value="${m==null?"":m}" aria-label="${esc(st.name)} criterion ${letters(sj.crit.length)[i]}">`).join("")}
+    <span class="tot" data-role="tot">${t==null?"":t+"/"+max}</span>
+    <span class="stamp ${g==null?"empty":""}" data-role="stamp" aria-label="Final grade ${g==null?"not available":g}">${g==null?"–":g}</span>
+    <span class="cstate ${st.comment.trim()?"done":""}" data-role="cstate">${st.comment.trim()?"Written":"No comment"}</span>
+  </div>`;
+}
+function segHtml(k, val, act){
+  const opt = OPTIONAL.includes(k);
+  const btns = (opt?[["","Not set"]]:[]).concat(LEVELS[k].map((l,i)=>[String(i),l]));
+  return `<div class="wide lvl"><span class="legend">${LEVEL_LABELS[k]}</span><div class="seg" role="group" aria-label="${LEVEL_LABELS[k]}">${btns.map(([v,l])=>`<button type="button" data-act="${act}" data-k="${k}" data-v="${v}" aria-pressed="${(val==null?"":String(val))===v}">${l}</button>`).join("")}</div></div>`;
+}
+function atlSelect(k, val, label){
+  return `<label class="field">${label}<select data-k="${k}"><option value="">None</option>${ATL_TREE.map(([cat,clusters])=>`<optgroup label="${cat}">${clusters.map(([cl,skills])=>skills.map(([id,lab])=>`<option value="${id}" ${val===id?"selected":""}>${cl}: ${lab}</option>`).join("")).join("")}</optgroup>`).join("")}</select></label>`;
+}
+function detailHtml(c, st){
+  const aiOn = state.settings.mode==="ai", strs = STRENGTHS[c.subject] || STRENGTHS.sci;
+  return `<div class="detail">
+    <div class="opts">
+      <label class="field wide">Name used in comment<input type="text" data-k="first" value="${esc(st.first)}"></label>
+      <p class="group-h wide">Learning and conduct</p>
+      ${["eng","beh","hw","eff"].map(k=>segHtml(k, st[k], "lvl")).join("")}
+      <p class="group-h wide">Progress, attendance and integrity</p>
+      ${OPTIONAL.map(k=>segHtml(k, st[k], "lvl")).join("")}
+      <p class="group-h wide">Strengths</p>
+      <div class="wide"><span class="legend">Specific strengths, pick up to 2</span><div class="chips">${strs.map(n=>`<button type="button" class="chip" data-act="str" data-v="${esc(n)}" aria-pressed="${st.str.includes(n)}">${esc(cap(n))}</button>`).join("")}</div></div>
+      <p class="group-h wide">IB learner profile</p>
+      <div class="wide"><span class="legend">Shown strongly, pick up to 2</span><div class="chips">${LP.map(([n])=>`<button type="button" class="chip" data-act="lps" data-v="${n}" aria-pressed="${st.lpS.includes(n)}">${n}</button>`).join("")}</div></div>
+      <div class="wide"><span class="legend">One to grow towards</span><div class="chips">${LP.map(([n])=>`<button type="button" class="chip" data-act="lpg" data-v="${n}" aria-pressed="${st.lpG===n}">${n}</button>`).join("")}</div></div>
+      <p class="group-h wide">Approaches to learning (ATL)</p>
+      ${atlSelect("atlS", st.atlS, "ATL skill strength")}${atlSelect("atlD", st.atlD, "ATL skill to develop")}
+      <label class="field wide">Teacher note ${aiOn?"(optional)":"(used in AI mode only)"}<textarea data-k="note" placeholder="e.g. strong practical report on pendulums">${esc(st.note)}</textarea></label>
+      <div class="wide"><button class="btn small danger" type="button" data-act="remove">Remove student</button></div>
+    </div>
+    <div class="comment">
+      <label class="legend" for="cm-${st.id}">Report comment</label>
+      <textarea id="cm-${st.id}" data-k="comment" placeholder="Choose the options, then write the comment.">${esc(st.comment)}</textarea>
+      <div class="foot">
+        <button class="btn primary small" type="button" data-act="write">${st.comment.trim()?"Rewrite comment":"Write comment"}</button>
+        <button class="btn small" type="button" data-act="copy">Copy</button>
+        <span class="msg" data-role="cmsg" aria-live="polite"></span>
+        <span class="wc" data-role="wc">${words(st.comment)} words</span>
+      </div>
+    </div>
+  </div>`;
+}
+function renderRoster(){
+  const c = cls();
+  $("roster").innerHTML = c.students.map(st=>`<li class="st ${state.open===st.id?"open":""}" data-id="${st.id}">${rowInner(c,st)}${state.open===st.id?detailHtml(c,st):""}</li>`).join("") ||
+    `<li class="st"><div class="row"><span class="msg">No students yet. Click Add students to paste your class list or type names one by one.</span></div></li>`;
+}
+function renderMode(){
+  const ai = state.settings.mode==="ai";
+  $("modeAi").setAttribute("aria-pressed", ai);
+  $("modeTpl").setAttribute("aria-pressed", !ai);
+}
+function renderAll(){
+  renderRail(); renderMode();
+  const has = !!cls();
+  $("classView").hidden = !has; $("emptyState").hidden = has;
+  const who = [state.settings.teacher, state.settings.school].filter(Boolean).join(", ");
+  $("teacherLine").textContent = who ? who+". Write end-of-term comments for parents." : "Enter marks, choose options for each student, and write end-of-term comments for parents.";
+  if(has){ renderHead(); renderRoster(); }
+}
+function refreshRow(st){
+  const li = document.querySelector(`.st[data-id="${st.id}"]`); if(!li) return;
+  const c = cls(), sj = subj(c), g = grade(st), t = total(st);
+  li.querySelector('[data-role="tot"]').textContent = t==null?"":t+"/"+(sj.crit.length*8);
+  const sp = li.querySelector('[data-role="stamp"]');
+  sp.textContent = g==null?"–":g; sp.classList.toggle("empty", g==null);
+  const cs = li.querySelector('[data-role="cstate"]');
+  cs.textContent = st.comment.trim()?"Written":"No comment"; cs.classList.toggle("done", !!st.comment.trim());
+  const wc = li.querySelector('[data-role="wc"]'); if(wc) wc.textContent = words(st.comment)+" words";
+}
+
+/* ---------- Persistence ---------- */
+const timers = {};
+function setSaved(t){ $("saveMsg").textContent = t; }
+function scheduleSave(key){ clearTimeout(timers[key]); setSaved("Saving…"); timers[key] = setTimeout(()=>persist(key), 500); }
+function persist(key){
+  try{
+    if(key==="settings") localStorage.setItem("myp-rc-settings", JSON.stringify({term:state.settings.term, mode:state.settings.mode, teacher:state.settings.teacher, school:state.settings.school, length:state.settings.length, theme:state.settings.theme, current:state.current, order:state.order}));
+    else if(state.classes[key]) localStorage.setItem("myp-rc-class-"+key, JSON.stringify({cls:state.classes[key]}));
+    else localStorage.removeItem("myp-rc-class-"+key);
+    setSaved("All changes saved");
+  }catch(e){ setSaved("Couldn’t save. Use Save backup."); }
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem("myp-rc-settings");
+    if(raw){
+      const d = JSON.parse(raw); firstRun = false;
+      if(typeof d.teacher==="string") state.settings.teacher = d.teacher;
+      if(typeof d.school==="string") state.settings.school = d.school;
+      if(d.term) state.settings.term = d.term;
+      if(d.mode==="ai"||d.mode==="template") state.settings.mode = d.mode;
+      if(["short","medium","long"].includes(d.length)) state.settings.length = d.length;
+      if(["auto","light","dark"].includes(d.theme)) state.settings.theme = d.theme;
+      if(Array.isArray(d.order)) state.order = d.order;
+      if(d.current) state.current = d.current;
+    }
+    state.order.forEach(id=>{
+      const r = localStorage.getItem("myp-rc-class-"+id);
+      if(r){ const d = JSON.parse(r); if(d.cls && Array.isArray(d.cls.students)) state.classes[id] = normClass(d.cls); }
+      else if(!state.classes[id]) state.classes[id] = normClass({id, label:id, subject:"sci", course:"Science", students:[]});
+    });
+    state.order = state.order.filter(id=>state.classes[id]);
+    if(!state.classes[state.current]) state.current = state.order[0] || null;
+  }catch(e){}
+}
+function saveEverything(){ persist("settings"); state.order.forEach(persist); }
+
+/* ---------- Paste marks ---------- */
+const normTokens = s => s.toLowerCase().replace(/[^a-z\u0400-\u04ff\s]/g," ").split(/\s+/).filter(Boolean);
+function findStudent(c, name){
+  const t = normTokens(name); if(!t.length) return null;
+  const key = t.slice().sort().join(" ");
+  let hit = c.students.find(s=>normTokens(s.name).sort().join(" ")===key);
+  if(!hit) hit = c.students.find(s=>{const st = normTokens(s.name); return t.every(x=>st.includes(x));});
+  return hit || null;
+}
+const LETTER = /[A-Za-z\u00C0-\u024F\u0400-\u04FF]/;
+const MARKS_TAIL = /^(.*?)(?:^|[\s,;\t]+)((?:(?:\d{1,2}(?:\.\d+)?|-|n\/?a)(?:[\s,;\t]+|$))+)$/i;
+function parseLine(raw, n){
+  let line = String(raw).replace(/\u00a0/g," ").replace(/\s+$/,"").trim();
+  if(!line) return null;
+  line = line.replace(/^(?:\(?\d{1,3}\s*[.)\]:\-]\s*|\d{1,3}\t+|\d{1,3}\s+(?=\D)|[-–•*·▪●○]\s*)/,"");
+  let name = line, nums = [];
+  const m = line.match(MARKS_TAIL);
+  if(m){
+    name = m[1];
+    nums = m[2].trim().split(/[\s,;\t]+/).slice(0,n).map(x=>{const v = parseFloat(x); return isNaN(v)||v<0||v>8 ? null : Math.round(v);});
+  }
+  name = name.replace(/[,;\t|]+/g," ").replace(/\s+/g," ").trim();
+  if(name && (!LETTER.test(name) || /\d/.test(name) || /^(no\.?|#|sr\.?|s\.?no|name|names|student|students|full name|grade|class|list)\b/i.test(name))) return {skip:true};
+  return {name, nums};
+}
+function importLines(text){
+  const c = cls(), n = subj(c).crit.length;
+  let added = 0, dup = 0, marked = 0, order = 0; const bad = [];
+  for(const raw of String(text).split(/\r?\n/)){
+    const p = parseLine(raw, n); if(!p || p.skip) continue;
+    let st = null;
+    if(!p.name){ st = c.students[order++]; if(!st){ bad.push(raw); continue; } }
+    else {
+      st = findStudent(c, p.name);
+      if(st){ if(!p.nums.length) dup++; }
+      else { st = mkStudent(p.name, "", n); c.students.push(st); added++; }
+    }
+    if(p.nums.length){ for(let i=0;i<n && i<p.nums.length;i++) st.marks[i] = p.nums[i]; marked++; }
+  }
+  if(added || marked){ renderRail(); renderRoster(); scheduleSave(c.id); }
+  return {added, dup, marked, bad:bad.length};
+}
+function summary(r){
+  const parts = [];
+  if(r.added) parts.push(`${r.added} student${r.added===1?"":"s"} added`);
+  if(r.marked) parts.push(`marks applied for ${r.marked}`);
+  if(r.dup) parts.push(`${r.dup} already in the class`);
+  if(r.bad) parts.push(`${r.bad} line${r.bad===1?"":"s"} couldn’t be read`);
+  return parts.length ? cap(parts.join(", "))+"." : "No names found. Put one name on each line.";
+}
+function applyPaste(){
+  const r = importLines($("pasteBox").value), msg = $("pasteMsg");
+  msg.className = "msg " + (r.added||r.marked ? "good" : "err"); msg.textContent = summary(r);
+}
+function openAdd(){
+  $("addCls").textContent = cls().label;
+  $("pastePanel").hidden = true; $("aiPanel").hidden = true; $("addPanel").hidden = false;
+  $("addMsg").textContent = ""; $("oneMsg").textContent = ""; $("listBox").value = "";
+  $("listBox").focus();
+}
+function addOne(){
+  const v = $("oneName").value.trim(); if(!v) return;
+  const p = parseLine(v, subj(cls()).crit.length), msg = $("oneMsg");
+  if(!p || p.skip || !p.name){ msg.className = "msg err"; msg.textContent = "Type a name with letters only."; return; }
+  const r = importLines(v);
+  msg.className = "msg " + (r.added ? "good" : "err");
+  msg.textContent = r.added ? `Added ${p.name}. Class now has ${cls().students.length} students.` : `${p.name} is already in this class.`;
+  $("oneName").value = ""; $("oneName").focus();
+}
+
+/* ---------- Writing ---------- */
+function openAi(list){
+  const c = cls(); if(!list.length) return;
+  aiTargets = list.map(st=>st.id);
+  const briefs = list.map((st,i)=>brief(c, st).replace(/^ID: .*$/m, "ID: S"+(i+1)));
+  $("aiPrompt").value = rules(c) + `\n\nWrite one comment for each student below. Reply with only a JSON array, one object per student, like [{"id": "S1", "comment": "..."}]. Use the IDs exactly as given and add nothing else.\n\n` + briefs.join("\n\n---\n\n");
+  $("aiReply").value = ""; $("aiMsg").textContent = ""; $("promptMsg").textContent = "";
+  $("pastePanel").hidden = true; $("aiPanel").hidden = false;
+  $("aiPanel").scrollIntoView({block:"start"});
+}
+function applyAi(){
+  const c = cls(), msg = $("aiMsg"), raw = $("aiReply").value.trim();
+  if(!raw){ msg.className = "msg err"; msg.textContent = "Paste the reply first."; return; }
+  let arr = null;
+  const tryParse = t => { try{ return JSON.parse(t); }catch(e){ return null; } };
+  arr = tryParse(raw);
+  if(!arr){ const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/i); if(fence) arr = tryParse(fence[1]); }
+  if(!arr){ const a = raw.indexOf("["), b = raw.lastIndexOf("]"); if(a>=0 && b>a) arr = tryParse(raw.slice(a,b+1)); }
+  let n = 0;
+  if(Array.isArray(arr)){
+    arr.forEach(o=>{
+      const m = String(o&&o.id||"").match(/(\d+)/); if(!m || !o.comment) return;
+      const st = c.students.find(s=>s.id===aiTargets[+m[1]-1]);
+      if(st){ st.comment = clean(o.comment); n++; }
+    });
+  } else if(aiTargets.length===1){
+    const st = c.students.find(s=>s.id===aiTargets[0]);
+    if(st){ st.comment = clean(raw.replace(/^```\w*|```$/g,"")); n = 1; }
+  }
+  if(!n){ msg.className = "msg err"; msg.textContent = "Couldn’t read the reply. Copy the chatbot’s whole answer, including the [ and ] brackets."; return; }
+  renderRail(); renderRoster(); scheduleSave(c.id);
+  msg.className = "msg good"; msg.textContent = `${n} of ${aiTargets.length} comment${aiTargets.length===1?"":"s"} added. Read each one before copying.`;
+}
+function writeOne(st, li){
+  const c = cls();
+  if(state.settings.mode==="ai"){ openAi([st]); return; }
+  st.v++; st.comment = templateComment(c, st);
+  li.querySelector('textarea[data-k="comment"]').value = st.comment;
+  li.querySelector('[data-act="write"]').textContent = "Rewrite comment";
+  refreshRow(st); renderRail(); scheduleSave(c.id);
+}
+function writeAll(){
+  const c = cls(); if(!c.students.length) return;
+  if(state.settings.mode==="ai"){ openAi(c.students); return; }
+  c.students.forEach(st=>{ st.v++; st.comment = templateComment(c, st); });
+  renderRail(); renderRoster(); scheduleSave(c.id);
+  showBar(`Wrote ${c.students.length} comments from templates.`, false); setTimeout(hideBar, 3500);
+}
+function showBar(t){ $("batchBar").hidden = false; $("batchText").textContent = t; $("stopBtn").hidden = true; }
+function hideBar(){ $("batchBar").hidden = true; }
+
+async function copyText(text, msgEl){
+  let ok = false;
+  try{ await navigator.clipboard.writeText(text); ok = true; }catch(e){
+    const t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select(); try{ ok = document.execCommand("copy"); }catch(_){} t.remove();
+  }
+  if(msgEl){ msgEl.className = "msg " + (ok?"good":"err"); msgEl.textContent = ok ? "Copied" : "Copy blocked. Select the text and copy it."; setTimeout(()=>{ if(msgEl.textContent==="Copied") msgEl.textContent=""; }, 2000); }
+  return ok;
+}
+
+function ask(title, value){
+  return new Promise(res=>{
+    const d = $("askDlg"); $("askTitle").textContent = title; $("askInput").value = value||"";
+    d.onclose = ()=>res(d.returnValue==="ok" ? $("askInput").value.trim() : null);
+    d.returnValue = ""; d.showModal(); $("askInput").select();
+  });
+}
+
+/* ---------- Events ---------- */
+$("classList").addEventListener("click", e=>{
+  const b = e.target.closest("[data-cls]"); if(!b) return;
+  state.current = b.dataset.cls; state.open = (state.classes[state.current].students[0]||{}).id || null; $("pastePanel").hidden = true; $("aiPanel").hidden = true; $("addPanel").hidden = true; $("unitPanel").hidden = true; $("defaultsPanel").hidden = true; hideBar();
+  if(!state.classes[state.current].students.length) setTimeout(openAdd, 0);
+  renderAll(); scheduleSave("settings");
+});
+$("term").addEventListener("input", e=>{ state.settings.term = e.target.value; scheduleSave("settings"); });
+$("modeAi").addEventListener("click", ()=>{ state.settings.mode = "ai"; renderMode(); renderRoster(); scheduleSave("settings"); });
+$("modeTpl").addEventListener("click", ()=>{ state.settings.mode = "template"; renderMode(); renderRoster(); scheduleSave("settings"); });
+$("subject").innerHTML = Object.entries(SUBJECTS).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join("");
+$("subject").addEventListener("change", e=>{
+  const c = cls(); c.subject = e.target.value; const n = subj(c).crit.length;
+  c.students.forEach(s=>{ s.marks = s.marks.slice(0,n); while(s.marks.length<n) s.marks.push(null); });
+  c.rc = c.rc.filter(x=>(RC[c.subject]||[]).includes(x));
+  c.students.forEach(st=>{ st.str = st.str.filter(x=>(STRENGTHS[c.subject]||[]).includes(x)); });
+  renderHead(); renderRoster(); if(!$("unitPanel").hidden) renderUnit(); scheduleSave(c.id);
+});
+$("course").addEventListener("input", e=>{ cls().course = e.target.value; scheduleSave(cls().id); });
+$("pasteBtn").addEventListener("click", ()=>{ const p = $("pastePanel"); p.hidden = !p.hidden; $("addPanel").hidden = true; if(!p.hidden){ $("pasteMsg").textContent = ""; $("pasteBox").focus(); } });
+$("closePaste").addEventListener("click", ()=>{ $("pastePanel").hidden = true; });
+$("applyPaste").addEventListener("click", applyPaste);
+$("writeAllBtn").addEventListener("click", writeAll);
+$("copyPrompt").addEventListener("click", ()=>copyText($("aiPrompt").value, $("promptMsg")));
+$("applyAi").addEventListener("click", applyAi);
+$("closeAi").addEventListener("click", ()=>{ $("aiPanel").hidden = true; });
+$("addClassBtn").addEventListener("click", async ()=>{
+  const name = await ask("New class name, e.g. Grade 8B"); if(!name) return;
+  let id = name.replace(/^grade\s*/i,"").replace(/[^A-Za-z0-9]/g,"") || "C";
+  while(state.classes[id]) id += "x";
+  state.classes[id] = normClass({id, label:name, subject:"sci", course:"Science", students:[]});
+  state.order.push(id); state.current = id; state.open = null;
+  renderAll(); persist(id); persist("settings");
+  openAdd();
+});
+$("renameBtn").addEventListener("click", async ()=>{
+  const c = cls(); const name = await ask("Rename class", c.label); if(!name) return;
+  c.label = name; renderAll(); scheduleSave(c.id);
+});
+$("delClassBtn").addEventListener("click", ()=>{
+  const c = cls(); if(!confirm(`Delete ${c.label} and all its marks and comments?`)) return;
+  delete state.classes[c.id]; state.order = state.order.filter(x=>x!==c.id);
+  persist(c.id); state.current = state.order[0] || null; state.open = null;
+  renderAll(); persist("settings");
+});
+$("backupBtn").addEventListener("click", ()=>{
+  const data = {app:"myp-report-comments", version:1, settings:state.settings, order:state.order, classes:state.classes};
+  const blob = new Blob([JSON.stringify(data, null, 1)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "report-comments-backup-" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+});
+$("restoreBtn").addEventListener("click", ()=>$("restoreFile").click());
+$("restoreFile").addEventListener("change", async e=>{
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    if(d.app!=="myp-report-comments" || !d.classes || !Array.isArray(d.order)) throw 0;
+    if(!confirm("Loading this backup replaces all classes in the app. Continue?")) return;
+    Object.values(d.classes).forEach(normClass);
+    state.classes = d.classes; state.order = d.order.filter(id=>d.classes[id]);
+    if(d.settings) state.settings = {term:d.settings.term||"Term 1", mode:d.settings.mode==="ai"?"ai":"template", length:d.settings.length||state.settings.length, theme:state.settings.theme, teacher:d.settings.teacher||state.settings.teacher, school:d.settings.school||state.settings.school};
+    state.current = state.order[0] || null; state.open = null;
+    $("term").value = state.settings.term; renderAll(); saveEverything(); setSaved("Backup loaded");
+  }catch(err){ setSaved("That file isn’t a backup from this app."); }
+});
+$("copyAllBtn").addEventListener("click", ()=>{
+  const c = cls(), done = c.students.filter(s=>s.comment.trim());
+  if(!done.length){ setSaved("No comments to copy yet."); return; }
+  copyText(done.map(s=>s.name+"\n"+s.comment.trim()).join("\n\n"), $("saveMsg"));
+});
+$("addBtn").addEventListener("click", openAdd);
+$("addList").addEventListener("click", ()=>{
+  const r = importLines($("listBox").value), msg = $("addMsg");
+  msg.className = "msg " + (r.added||r.marked ? "good" : "err"); msg.textContent = summary(r);
+  if(r.added||r.marked) $("listBox").value = "";
+});
+$("addOne").addEventListener("click", addOne);
+$("oneName").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addOne(); } });
+$("closeAdd").addEventListener("click", ()=>{ $("addPanel").hidden = true; const c = cls(); if(c && !state.open && c.students[0]){ state.open = c.students[0].id; renderRoster(); } });
+
+const roster = $("roster");
+roster.addEventListener("click", e=>{
+  const li = e.target.closest(".st[data-id]"); if(!li) return;
+  const c = cls(), st = c.students.find(s=>s.id===li.dataset.id); if(!st) return;
+  const act = e.target.closest("[data-act]"); if(!act) return;
+  const a = act.dataset.act;
+  if(a==="toggle"){ state.open = state.open===st.id ? null : st.id; renderRoster(); }
+  else if(a==="lps" || a==="str"){
+    const v = act.dataset.v, key = a==="lps" ? "lpS" : "str";
+    if(st[key].includes(v)) st[key] = st[key].filter(x=>x!==v);
+    else { st[key].push(v); if(st[key].length>2) st[key].shift(); }
+    li.querySelectorAll(`[data-act="${a}"]`).forEach(b=>b.setAttribute("aria-pressed", st[key].includes(b.dataset.v)));
+    scheduleSave(c.id);
+  }
+  else if(a==="lpg"){
+    st.lpG = st.lpG===act.dataset.v ? "" : act.dataset.v;
+    li.querySelectorAll('[data-act="lpg"]').forEach(b=>b.setAttribute("aria-pressed", st.lpG===b.dataset.v));
+    scheduleSave(c.id);
+  }
+  else if(a==="lvl"){
+    const k = act.dataset.k, v = act.dataset.v; st[k] = v==="" ? null : +v;
+    li.querySelectorAll(`[data-act="lvl"][data-k="${k}"]`).forEach(b=>b.setAttribute("aria-pressed", b===act));
+    scheduleSave(c.id);
+  }
+  else if(a==="write") writeOne(st, li);
+  else if(a==="copy") copyText(st.comment.trim(), li.querySelector('[data-role="cmsg"]'));
+  else if(a==="remove"){
+    if(!confirm(`Remove ${st.name} from ${c.label}?`)) return;
+    c.students = c.students.filter(s=>s.id!==st.id); state.open = null; renderRail(); renderRoster(); scheduleSave(c.id);
+  }
+});
+roster.addEventListener("input", e=>{
+  const el = e.target, k = el.dataset.k; if(!k) return;
+  const li = el.closest(".st[data-id]"), c = cls(), st = c.students.find(s=>s.id===li.dataset.id); if(!st) return;
+  if(k==="mark"){
+    const raw = el.value.trim(), v = raw==="" ? null : Number(raw);
+    const bad = v!=null && (!Number.isInteger(v) || v<0 || v>8);
+    el.classList.toggle("bad", bad);
+    st.marks[+el.dataset.i] = bad ? null : v;
+  }
+  else if(k==="first") st.first = el.value.trim() || st.first;
+  else if(k==="note") st.note = el.value;
+  else if(k==="comment"){ st.comment = el.value; renderRail(); }
+  else return;
+  refreshRow(st); scheduleSave(c.id);
+});
+roster.addEventListener("change", e=>{
+  const el = e.target, k = el.dataset.k; if(!k || el.tagName!=="SELECT") return;
+  const li = el.closest(".st[data-id]"), c = cls(), st = c.students.find(s=>s.id===li.dataset.id); if(!st) return;
+  if(["eng","beh","hw","eff"].includes(k)) st[k] = +el.value;
+  else st[k] = el.value;
+  refreshRow(st); scheduleSave(c.id);
+});
+
+/* ---------- Unit, class defaults, length, theme ---------- */
+const togglePanel = id => { const p = $(id); const show = p.hidden; ["unitPanel","defaultsPanel","addPanel","pastePanel","aiPanel"].forEach(x=>$(x).hidden = true); p.hidden = !show; return show; };
+$("unitGc").innerHTML = `<option value="">Not set</option>` + GC.map(g=>`<option>${g}</option>`).join("");
+function renderUnit(){
+  const c = cls(); if(!c) return;
+  $("unitCls").textContent = c.label; $("unitName").value = c.unit; $("unitGc").value = c.gc; $("rcOther").value = c.rcOther;
+  $("kcChips").innerHTML = KC.map(k=>`<button type="button" class="chip" data-kind="kc" data-v="${k}" aria-pressed="${c.kc.includes(k)}">${k}</button>`).join("");
+  const rcs = RC[c.subject] || [];
+  $("rcChips").innerHTML = rcs.length ? rcs.map(k=>`<button type="button" class="chip" data-kind="rc" data-v="${k}" aria-pressed="${c.rc.includes(k)}">${k}</button>`).join("") : `<span class="msg">Type related concepts in the box below.</span>`;
+}
+$("unitBtn").addEventListener("click", ()=>{ if(togglePanel("unitPanel")) renderUnit(); });
+$("closeUnit").addEventListener("click", ()=>{ $("unitPanel").hidden = true; });
+$("unitName").addEventListener("input", e=>{ cls().unit = e.target.value; scheduleSave(cls().id); });
+$("unitGc").addEventListener("change", e=>{ cls().gc = e.target.value; scheduleSave(cls().id); });
+$("rcOther").addEventListener("input", e=>{ cls().rcOther = e.target.value; scheduleSave(cls().id); });
+["kcChips","rcChips"].forEach(id=>$(id).addEventListener("click", e=>{
+  const b = e.target.closest("[data-kind]"); if(!b) return;
+  const c = cls(), key = b.dataset.kind, max = key==="kc" ? 2 : 3, v = b.dataset.v;
+  if(c[key].includes(v)) c[key] = c[key].filter(x=>x!==v); else { c[key].push(v); if(c[key].length>max) c[key].shift(); }
+  $(id).querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed", c[key].includes(x.dataset.v)));
+  scheduleSave(c.id);
+}));
+
+const DEFAULT_KEYS = ["eng","beh","hw","eff","prog","att","ai"];
+$("defaultsGrid").innerHTML = DEFAULT_KEYS.map(k=>`<label class="field">${LEVEL_LABELS[k]}<select data-dk="${k}"><option value="keep">Don’t change</option>${OPTIONAL.includes(k)?`<option value="">Not set</option>`:""}${LEVELS[k].map((l,i)=>`<option value="${i}">${l}</option>`).join("")}</select></label>`).join("");
+$("defaultsBtn").addEventListener("click", ()=>{ if(togglePanel("defaultsPanel")){ $("defaultsMsg").textContent = ""; $("defaultsGrid").querySelectorAll("select").forEach(x=>x.value="keep"); } });
+$("closeDefaults").addEventListener("click", ()=>{ $("defaultsPanel").hidden = true; });
+$("applyDefaults").addEventListener("click", ()=>{
+  const c = cls(), changes = [];
+  $("defaultsGrid").querySelectorAll("select").forEach(x=>{ if(x.value!=="keep") changes.push([x.dataset.dk, x.value==="" ? null : +x.value]); });
+  const msg = $("defaultsMsg");
+  if(!changes.length){ msg.className = "msg err"; msg.textContent = "Choose at least one level first."; return; }
+  c.students.forEach(st=>changes.forEach(([k,v])=>st[k]=v));
+  renderRoster(); scheduleSave(c.id);
+  msg.className = "msg good"; msg.textContent = `Applied to ${c.students.length} students. Change individual students by clicking their names.`;
+});
+
+$("lengthSel").addEventListener("change", e=>{ state.settings.length = e.target.value; scheduleSave("settings"); });
+function applyTheme(){
+  const t = state.settings.theme;
+  if(t==="auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+  $("themeBtn").textContent = "Theme: " + cap(t);
+}
+$("themeBtn").addEventListener("click", ()=>{
+  const order = ["auto","light","dark"]; state.settings.theme = order[(order.indexOf(state.settings.theme)+1)%3];
+  applyTheme(); scheduleSave("settings");
+});
+
+/* ---------- Details, guide, clear, export ---------- */
+function openMe(first){
+  $("meTitle").textContent = first ? "Welcome" : "My details";
+  $("meIntro").textContent = first ? "Add your details. They appear at the top of the app and in exported files. You can change them later." : "These appear at the top of the app and in exported files.";
+  $("meName").value = state.settings.teacher; $("meSchool").value = state.settings.school;
+  const d = $("meDlg");
+  d.onclose = ()=>{
+    state.settings.teacher = $("meName").value.trim(); state.settings.school = $("meSchool").value.trim();
+    persist("settings"); renderAll(); if(first) $("guideDlg").showModal();
+  };
+  d.showModal(); $("meName").focus();
+}
+$("meBtn").addEventListener("click", ()=>openMe(false));
+$("guideBtn").addEventListener("click", ()=>$("guideDlg").showModal());
+$("aboutBtn").addEventListener("click", ()=>$("aboutDlg").showModal());
+$("emptyGuide").addEventListener("click", ()=>$("guideDlg").showModal());
+$("emptyAdd").addEventListener("click", ()=>$("addClassBtn").click());
+
+$("clearBtn").addEventListener("click", ()=>{
+  const d = $("clearDlg"); d.returnValue = "";
+  $("clearClassBtn").textContent = "Clear " + (cls() ? cls().label : "this class");
+  d.onclose = ()=>{
+    const v = d.returnValue; if(v!=="class" && v!=="all") return;
+    const ids = v==="all" ? state.order : [state.current];
+    ids.forEach(id=>{ state.classes[id].students.forEach(st=>st.comment=""); persist(id); });
+    renderRail(); renderRoster(); setSaved(v==="all" ? "All comments cleared" : "Comments cleared for this class");
+  };
+  d.showModal();
+});
+
+function exportRows(scope){
+  const ids = scope==="all" ? state.order : [state.current];
+  const rows = [];
+  ids.forEach(id=>{
+    const c = state.classes[id], sj = subj(c), L = letters(sj.crit.length);
+    c.students.forEach(st=>rows.push({cls:c.label, course:c.course||sj.name, name:st.name, crit:L.map((l,i)=>[l, st.marks[i]]), grade:grade(st), comment:st.comment.trim()}));
+  });
+  return rows;
+}
+function download(name, text, type){
+  const blob = new Blob([text], {type});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+const fileStamp = () => new Date().toISOString().slice(0,10);
+const fileBase = scope => "report-comments-" + (scope==="all" ? "all-classes" : (cls().label||"class").replace(/[^A-Za-z0-9]+/g,"-")) + "-" + fileStamp();
+$("exportBtn").addEventListener("click", ()=>{ $("expMsg").textContent = ""; $("exportDlg").showModal(); });
+$("expCsv").addEventListener("click", ()=>{
+  const scope = $("expScope").value, rows = exportRows(scope);
+  const q = v => '"' + String(v??"").replace(/"/g,'""') + '"';
+  const head = ["Class","Course","Student","A","B","C","D","Final grade","Comment","Teacher"];
+  const lines = [head.map(q).join(",")].concat(rows.map(r=>{
+    const m = ["A","B","C","D"].map(l=>{ const x = r.crit.find(c=>c[0]===l); return x && x[1]!=null ? x[1] : ""; });
+    return [r.cls, r.course, r.name, ...m, r.grade??"", r.comment, state.settings.teacher].map(q).join(",");
+  }));
+  download(fileBase(scope)+".csv", "\ufeff"+lines.join("\r\n"), "text/csv;charset=utf-8");
+  $("expMsg").className = "msg good"; $("expMsg").textContent = `Exported ${rows.length} students. Open the file in Excel.`;
+});
+$("expDoc").addEventListener("click", ()=>{
+  const scope = $("expScope").value, rows = exportRows(scope);
+  let html = `<html><head><meta charset="utf-8"><style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{font-size:16pt}h2{font-size:13pt;margin-top:18pt}p.n{font-weight:bold;margin:10pt 0 2pt}p.c{margin:0 0 6pt}</style></head><body>`;
+  html += `<h1>End-of-term report comments, ${esc(state.settings.term)}</h1>`;
+  const who = [state.settings.teacher, state.settings.school].filter(Boolean).join(", ");
+  if(who) html += `<p>${esc(who)}</p>`;
+  let last = "";
+  rows.forEach(r=>{
+    if(r.cls!==last){ html += `<h2>${esc(r.cls)}, ${esc(r.course)}</h2>`; last = r.cls; }
+    const marks = r.crit.map(c=>c[0]+" "+(c[1]==null?"-":c[1])).join(", ");
+    html += `<p class="n">${esc(r.name)} (${marks}${r.grade?", grade "+r.grade:""})</p><p class="c">${esc(r.comment||"No comment written yet.")}</p>`;
+  });
+  html += `</body></html>`;
+  download(fileBase(scope)+".doc", html, "application/msword");
+  $("expMsg").className = "msg good"; $("expMsg").textContent = `Exported ${rows.length} students. Open the file in Word.`;
+});
+$("expCopy").addEventListener("click", ()=>{
+  const scope = $("expScope").value, rows = exportRows(scope).filter(r=>r.comment);
+  if(!rows.length){ $("expMsg").className = "msg err"; $("expMsg").textContent = "No comments written yet."; return; }
+  copyText(rows.map(r=>r.name+"\n"+r.comment).join("\n\n"), $("expMsg"));
+});
+
+/* ---------- Start ---------- */
+loadLocal();
+state.open = cls() ? ((cls().students[0]||{}).id || null) : null;
+$("term").value = state.settings.term;
+$("lengthSel").value = state.settings.length;
+applyTheme();
+renderAll();
+if(firstRun) setTimeout(()=>openMe(true), 200);
+</script>
+<script>
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>
