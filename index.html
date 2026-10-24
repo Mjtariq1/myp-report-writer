@@ -3,13 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MYP Report Writer</title>
-<meta name="description" content="Write clear, personal MYP end-of-term report comments in minutes. Works offline.">
+<title>TeachersHub Report Writer</title>
+<meta name="description" content="Write clear, personal end-of-term report comments for IB, Cambridge, Edexcel, US and Indian curricula in minutes. Works offline.">
 <meta name="theme-color" content="#2F3E9E">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-
 <style>
 @font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2");font-weight:400;}
 @font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2");font-weight:700;}
@@ -38,8 +37,37 @@
   --stamp:#F0B44C; --stamp-bg:#33280F; --ok:#6CC79D; --warn:#F08C78;
   color-scheme:dark;
 }
+/* Curriculum families: each system gets its own accent */
+:root[data-fam="uk"]{--accent:#17695F;--accent-soft:#D8EEEA;}
+:root[data-fam="us"]{--accent:#2B4E8C;--accent-soft:#DCE5F4;--stamp:#9C2F23;--stamp-bg:#FBE6E2;}
+:root[data-fam="in"]{--accent:#8F420B;--accent-soft:#F7E4D3;--stamp:#1E6B4F;--stamp-bg:#DDF1E8;}
+:root[data-fam="other"]{--accent:#46566B;--accent-soft:#E3E8EF;}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"])[data-fam="uk"]{--accent:#6FCDBE;--accent-soft:#173A36;}
+  :root:not([data-theme="light"])[data-fam="us"]{--accent:#93B2EE;--accent-soft:#1D2A44;--stamp:#F29A8C;--stamp-bg:#3A1F1B;}
+  :root:not([data-theme="light"])[data-fam="in"]{--accent:#F2AE72;--accent-soft:#3B2716;--stamp:#7FD6AE;--stamp-bg:#173328;}
+  :root:not([data-theme="light"])[data-fam="other"]{--accent:#AFBDD0;--accent-soft:#283241;}
+}
+:root[data-theme="dark"][data-fam="uk"]{--accent:#6FCDBE;--accent-soft:#173A36;}
+:root[data-theme="dark"][data-fam="us"]{--accent:#93B2EE;--accent-soft:#1D2A44;--stamp:#F29A8C;--stamp-bg:#3A1F1B;}
+:root[data-theme="dark"][data-fam="in"]{--accent:#F2AE72;--accent-soft:#3B2716;--stamp:#7FD6AE;--stamp-bg:#173328;}
+:root[data-theme="dark"][data-fam="other"]{--accent:#AFBDD0;--accent-soft:#283241;}
+.title-wrap{margin-right:auto;display:flex;flex-direction:column;gap:4px;}
+.fam-badge{align-self:flex-start;font-size:.8rem;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:999px;}
+.critkey .w{color:var(--muted);font-size:.8rem;}
+.rhead small{display:block;font-size:.7rem;color:var(--muted);}
+.stamp.pred{border-style:double;border-width:4px;}
+.ia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 14px;}
+.iain{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.88rem;}
+.iain input{width:64px !important;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);}
+.iain input.bad{border-color:var(--warn);}
+.comps-grid{display:grid;gap:6px;margin:4px 0 6px;overflow-x:auto;}
+.cg-head,.cg-row{display:grid;grid-template-columns:80px minmax(220px,1fr) 100px 100px 90px;gap:8px;align-items:center;min-width:560px;}
+.cg-head{font-size:.8rem;color:var(--muted);}
+.cg-row input{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--sunk);color:var(--ink);width:100%;}
 html{scroll-padding-top:env(safe-area-inset-top,0px);}
 *,*::before,*::after{box-sizing:border-box;}
+[hidden]{display:none !important;}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;}
 h1,h2{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;margin:0;line-height:1.1;}
 button,input,select,textarea{font:inherit;color:inherit;}
@@ -72,7 +100,7 @@ button,input,select,textarea{font:inherit;color:inherit;}
 
 main{padding:22px clamp(16px,3vw,36px) 60px;min-width:0;}
 .class-head{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:end;margin-bottom:14px;}
-.class-head h2{font-size:clamp(1.5rem,3vw,1.9rem);font-weight:600;margin-right:auto;}
+.class-head h2{font-size:clamp(1.5rem,3vw,1.9rem);font-weight:600;}
 .class-head .field select{min-width:220px;}
 .class-head .field input{width:150px;}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px;}
@@ -82,6 +110,19 @@ main{padding:22px clamp(16px,3vw,36px) 60px;min-width:0;}
 .btn.small{padding:5px 10px;font-size:.85rem;}
 .btn.danger{color:var(--warn);}
 .btn:disabled{opacity:.55;cursor:wait;}
+.setup-grid{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(140px,.8fr) minmax(220px,1.4fr) minmax(90px,.5fr) minmax(140px,.8fr);gap:12px 16px;margin:0 0 12px;}
+.setup-grid .field select,.setup-grid .field input{width:100%;}
+@media (max-width:1000px){.setup-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:560px){.setup-grid{grid-template-columns:1fr;}}
+.setup-line{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:end;margin:0 0 10px;}
+.equiv{margin:0;font-size:.85rem;color:var(--muted);max-width:70ch;}
+.gsel{max-width:84px;padding:6px 4px;}
+.stamp.long{font-size:.78rem;width:auto;min-width:44px;padding:0 8px;border-radius:22px;}
+.bounds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 16px;margin:4px 0 6px;}
+.bounds-grid .field{flex-direction:row;align-items:center;gap:8px;}
+.bounds-grid input[type=number]{width:62px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--sunk);color:var(--ink);}
+.bounds-grid input[type=text]{width:58px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--sunk);color:var(--ink);font-weight:700;}
+.bmin{font-size:.88rem;color:var(--muted);display:flex;align-items:center;gap:4px;}
 .critkey{font-size:.85rem;color:var(--muted);margin:0 0 14px;}
 .critkey b{color:var(--ink);font-weight:700;}
 
@@ -175,7 +216,7 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
 <body>
 <header class="top">
   <div>
-    <h1>MYP Report Writer</h1>
+    <h1>TeachersHub Report Writer</h1>
     <p id="teacherLine">Enter marks, choose options for each student, and write end-of-term comments for parents.</p>
   </div>
   <div class="top-tools">
@@ -209,18 +250,41 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     </section>
     <div id="classView">
     <div class="class-head">
-      <h2 id="clsTitle"></h2>
+      <div class="title-wrap"><span class="fam-badge" id="famBadge"></span><h2 id="clsTitle"></h2></div>
       <div class="field">Class<span style="display:flex;gap:6px"><button class="btn small" id="renameBtn" type="button">Rename</button><button class="btn small danger" id="delClassBtn" type="button">Delete class</button></span></div>
-      <label class="field">Subject group
+    </div>
+    <div class="setup-grid">
+      <label class="field">Curriculum
+        <select id="curSel"></select>
+      </label>
+      <label class="field">Year or grade
+        <select id="levelSel"></select>
+      </label>
+      <label class="field">Subject
         <select id="subject"></select>
+      </label>
+      <label class="field" id="optWrap" hidden><span id="optLabel">Level</span>
+        <select id="optSel"></select>
       </label>
       <label class="field">Course name in comments
         <input id="course" type="text">
       </label>
     </div>
+    <div class="setup-line">
+      <div class="field">Enter achievement as
+        <div class="seg" role="group" aria-label="Enter achievement as">
+          <button type="button" id="entNative" aria-pressed="true">Criteria 0 to 8</button>
+          <button type="button" id="entRaw" aria-pressed="false">Raw marks</button>
+          <button type="button" id="entPct" aria-pressed="false">Marks out of 100</button>
+        </div>
+      </div>
+      <p class="equiv" id="equivLine"></p>
+    </div>
     <p class="critkey" id="critKey"></p>
     <div class="actions">
       <button class="btn" id="unitBtn" type="button">Unit and concepts</button>
+      <button class="btn" id="compsBtn" type="button">Components</button>
+      <button class="btn" id="boundsBtn" type="button">Grade boundaries</button>
       <button class="btn" id="defaultsBtn" type="button">Set for whole class</button>
       <button class="btn" id="pasteBtn" type="button">Paste marks</button>
       <button class="btn primary" id="writeAllBtn" type="button">Write all comments</button>
@@ -236,15 +300,31 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
 
     <section class="panel" id="unitPanel" hidden>
       <h3 class="ptitle">Unit and concepts for <span id="unitCls"></span></h3>
-      <p>Set these once for the class. They are used in AI comments and in long template comments.</p>
+      <p id="unitIntro">Set these once for the class. They are used in AI comments and in long template comments.</p>
       <div class="unit-grid">
-        <label class="field">Unit studied this term<input id="unitName" type="text" placeholder="e.g. Forces and motion"></label>
-        <label class="field">Global context<select id="unitGc"></select></label>
+        <label class="field">Unit or topic studied this term<input id="unitName" type="text" placeholder="e.g. Forces and motion"></label>
+        <label class="field myp-only">Global context<select id="unitGc"></select></label>
       </div>
+      <div class="myp-only">
       <span class="legend" style="margin-top:12px">Key concepts, pick up to 2</span><div class="chips" id="kcChips"></div>
       <span class="legend" style="margin-top:12px">Related concepts for this subject, pick up to 3</span><div class="chips" id="rcChips"></div>
       <label class="field" style="margin-top:10px">Other related concepts (separate with commas)<input id="rcOther" type="text"></label>
+      </div>
       <div class="row-btns"><button class="btn" id="closeUnit" type="button">Done</button><span class="msg" id="unitMsg"></span></div>
+    </section>
+
+    <section class="panel" id="compsPanel" hidden>
+      <h3 class="ptitle" id="compsTitle"></h3>
+      <p id="compsNote"></p>
+      <div class="comps-grid" id="compsGrid"></div>
+      <div class="row-btns"><button class="btn" id="addComp" type="button">Add a row</button><button class="btn primary" id="saveComps" type="button">Save</button><button class="btn" id="resetComps" type="button">Restore default structure</button><button class="btn" id="closeComps" type="button">Close</button><span class="msg" id="compsMsg" aria-live="polite"></span></div>
+    </section>
+
+    <section class="panel" id="boundsPanel" hidden>
+      <h3 class="ptitle">Grade boundaries for <span id="boundsCls"></span></h3>
+      <p>Used to turn marks out of 100 into grades. Exam boards set official boundaries for each exam series, so these defaults are typical school boundaries. Change them to match your school’s assessment policy.</p>
+      <div class="bounds-grid" id="boundsGrid"></div>
+      <div class="row-btns"><button class="btn primary" id="saveBounds" type="button">Save boundaries</button><button class="btn" id="resetBounds" type="button">Restore defaults</button><button class="btn" id="closeBounds" type="button">Close</button><span class="msg" id="boundsMsg" aria-live="polite"></span></div>
     </section>
 
     <section class="panel" id="defaultsPanel" hidden>
@@ -312,7 +392,7 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
       <button class="btn small" id="stopBtn" type="button">Stop</button>
     </div>
 
-    <p class="hint">Click a student’s name to set engagement, behaviour, homework, effort, learner profile attributes and ATL skills.</p>
+    <p class="hint" id="rosterHint">Click a student’s name to set engagement, behaviour, homework, effort, learner profile attributes and ATL skills.</p>
     <div class="scroller">
       <div class="rhead" id="rhead"></div>
       <ol class="roster" id="roster"></ol>
@@ -320,16 +400,16 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     </div>
   </main>
 </div>
-<footer class="credit">MYP Report Writer, made by Muhammad Tariq. Contact <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a> or <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">LinkedIn</a>. <a href="privacy.html" target="_blank">Privacy policy</a>.</footer>
+<footer class="credit">TeachersHub Report Writer, made by Muhammad Tariq. Contact <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a> or <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">LinkedIn</a>. <a href="privacy.html" target="_blank">Privacy policy</a>.</footer>
 <div hidden>
 </div>
 
 <dialog id="askDlg"><form method="dialog" id="askForm"><h3 id="askTitle"></h3><input id="askInput" type="text" autocomplete="off"><div class="row-btns"><button class="btn" value="cancel" type="submit" formnovalidate>Cancel</button><button class="btn primary" id="askOk" value="ok" type="submit">Save</button></div></form></dialog>
 
 <dialog id="aboutDlg"><form method="dialog">
-  <h3>MYP Report Writer</h3>
-  <p class="dlg-p">Version 1.5</p>
-  <p class="about-p">Write clear, personal end-of-term MYP report comments in minutes. Enter criteria marks, choose a few options for each student, and the app drafts comments for you, offline or with an AI chatbot.</p>
+  <h3>TeachersHub Report Writer</h3>
+  <p class="dlg-p">Version 3.0</p>
+  <p class="about-p">Write clear, personal end-of-term report comments in minutes for IB MYP and DP, British KS3, IGCSE and A Level (Cambridge and Pearson Edexcel), US letter-grade and NGSS standards-based, Indian CBSE, ICSE and ISC, or your own local curriculum. Enter marks or grades, choose a few options for each student, and the app drafts comments for you, offline or with an AI chatbot.</p>
   <p class="about-p"><b>Created by Muhammad Tariq</b><br>International science educator</p>
   <p class="about-p">Email: <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a><br>LinkedIn: <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">linkedin.com/in/mtariq639</a></p>
   <p class="dlg-p">Free for teachers to use and share. Your classes and comments stay on your own computer and are never uploaded.</p>
@@ -347,8 +427,9 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
   <ol class="guide">
     <li><b>Add a class.</b> Click Add class on the left and give it a name, such as Grade 8B.</li>
     <li><b>Add students.</b> Paste your class list (numbered or not) or type names one by one and press Enter.</li>
-    <li><b>Choose the subject.</b> Pick the MYP subject group and type the course name used in comments, such as Physics. Click Unit and concepts to add the unit, global context, key concepts and related concepts.</li>
-    <li><b>Enter marks.</b> Type criteria marks (0 to 8) on each row, or click Paste marks and paste from Excel. The final grade is worked out for you.</li>
+    <li><b>Choose the curriculum.</b> Pick IB MYP or DP, British (KS3, Cambridge or Pearson Edexcel IGCSE, AS and A Level), US (letter grades or NGSS standards-based), Indian (CBSE, ICSE and ISC) or your own local curriculum. Then choose the year or grade, the subject group and the course name used in comments, such as Physics. The app shows the matching year in other systems.</li>
+    <li><b>Check the assessment structure.</b> For IB DP, IGCSE, A Level, CBSE, ICSE and US classes, the app sets up the real papers, units or gradebook categories with their maximum marks and weightings, for example Paper 1A, Paper 1B, Paper 2 and the internal assessment for DP sciences. Choose SL or HL, Core or Extended, or Foundation or Higher where it applies. Click Components to edit them if your school differs.</li>
+    <li><b>Enter marks.</b> Choose how to enter achievement: raw marks for each paper, the curriculum’s own scale (MYP criteria 0 to 8, or grades such as A*, 7 or A1) or marks out of 100. Type them on each row, or click Paste marks and paste from Excel. The overall grade is worked out for you. Use Grade boundaries to match your school’s policy.</li>
     <li><b>Set student options.</b> Use Set for whole class to give everyone a starting level in one click. Then click a student’s name to change their engagement, behaviour, progress, attendance, academic integrity, strengths, learner profile and ATL skills.</li>
     <li><b>Write comments.</b> Choose a comment length at the top, then click Write all comments. Templates work offline. AI chatbot mode gives you a prompt to paste into Gemini, ChatGPT or Claude, then you paste the reply back.</li>
     <li><b>Check and send.</b> Read and edit each comment, then copy it or use Export to move comments into ManageBac, Toddle or your school’s system.</li>
@@ -526,6 +607,366 @@ const PR = {
   they:{s:"they",o:"them",p:"their",r:"themselves",label:"they/them"}
 };
 
+/* ---------- Curricula (v3): real assessment structures ---------- */
+const SCALES = {
+  dp17:{name:"IB grades 7 to 1",kind:"grade",g:[["7",75,"high","excellent"],["6",62,"high","very good"],["5",50,"mid","good"],["4",38,"mid","satisfactory"],["3",27,"low","mediocre"],["2",14,"low","poor"],["1",0,"low","very poor"]]},
+  astar:{name:"A* to G",kind:"grade",g:[["A*",90,"high"],["A",80,"high"],["B",70,"mid"],["C",60,"mid"],["D",50,"low"],["E",40,"low"],["F",30,"low"],["G",20,"low"],["U",0,"fail","ungraded"]]},
+  g91:{name:"9 to 1",kind:"grade",g:[["9",90,"high"],["8",80,"high"],["7",70,"high"],["6",60,"mid"],["5",50,"mid"],["4",40,"mid"],["3",30,"low"],["2",20,"low"],["1",10,"low"],["U",0,"fail","ungraded"]]},
+  alevel:{name:"A* to E",kind:"grade",g:[["A*",90,"high"],["A",80,"high"],["B",70,"mid"],["C",60,"mid"],["D",50,"low"],["E",40,"low"],["U",0,"fail","ungraded"]]},
+  ks3:{name:"Attainment levels",kind:"level",g:[["Mastering",85,"high"],["Secure",65,"mid"],["Developing",45,"low"],["Emerging",0,"low"]]},
+  usl:{name:"Letter grades A to F",kind:"letter",g:[["A",90,"high"],["B",80,"mid"],["C",70,"mid"],["D",60,"low"],["F",0,"fail"]]},
+  ngss:{name:"Standards-based levels 4 to 1",kind:"sbg",g:[["4",90,"high","exceeding the standard"],["3",70,"mid","meeting the standard"],["2",50,"low","approaching the standard"],["1",0,"low","beginning"]]},
+  cbse:{name:"CBSE 9-point scale (A1 to E)",kind:"grade",g:[["A1",91,"high"],["A2",81,"high"],["B1",71,"mid"],["B2",61,"mid"],["C1",51,"mid"],["C2",41,"low"],["D",33,"low"],["E",0,"fail","needs improvement"]]},
+  icse:{name:"Percentage with descriptors",kind:"pct",g:[["Excellent",90,"high"],["Very good",75,"high"],["Good",60,"mid"],["Satisfactory",45,"mid"],["Pass",33,"low"],["Below pass",0,"fail"]]},
+  custom:{name:"School scale (editable)",kind:"grade",g:[["A",90,"high"],["B",75,"high"],["C",60,"mid"],["D",50,"mid"],["E",40,"low"],["F",0,"fail"]]}
+};
+const yrs = (pre, from, to, start, suf) => { const a=[]; for(let i=from;i<=to;i++) a.push([pre+i+(suf?suf(i):""), start+i-from]); return a; };
+/* fam drives the interface: ib, uk, us, in, other */
+const CURRICULA = {
+  myp:{name:"IB Middle Years Programme (MYP)",grp:"International Baccalaureate",fam:"ib",ib:true,levels:yrs("MYP ",1,5,0),entry:"native",
+       subjects:["lal","lac","ins","sci","mat","art","phe","des","idu","pp"]},
+  dp:{name:"IB Diploma Programme (DP)",grp:"International Baccalaureate",fam:"ib",ib:true,scale:"dp17",levels:[["DP 1 (Grade 11)",5],["DP 2 (Grade 12)",6]],entry:"raw",
+      subjects:["dp_bio","dp_chem","dp_phys","dp_maa","dp_mai","dp_engll","dp_englit","dp_econ","dp_other"]},
+  ks3:{name:"Key Stage 3 (British, Years 7 to 9)",grp:"British",fam:"uk",scale:"ks3",levels:yrs("Year ",7,9,0),entry:"pct",
+       subjects:["ks3_sci","ks3_mat","ks3_eng","ks3_other"]},
+  cie_ig:{name:"Cambridge IGCSE, A* to G",grp:"British",fam:"uk",scale:"astar",board:"Cambridge",levels:yrs("Year ",10,11,3),entry:"raw",
+       subjects:["ig_bio","ig_chem","ig_phys","ig_mat","ig_eng","ig_other"]},
+  cie_ig9:{name:"Cambridge IGCSE, 9 to 1",grp:"British",fam:"uk",scale:"g91",board:"Cambridge",levels:yrs("Year ",10,11,3),entry:"raw",
+       subjects:["ig_bio","ig_chem","ig_phys","ig_mat","ig_eng","ig_other"]},
+  edx_ig:{name:"Pearson Edexcel International GCSE, 9 to 1",grp:"British",fam:"uk",scale:"g91",board:"Pearson Edexcel",levels:yrs("Year ",10,11,3),entry:"raw",
+       subjects:["eig_bio","eig_chem","eig_phys","eig_mat","eig_eng","eig_other"]},
+  cie_al:{name:"Cambridge International AS and A Level",grp:"British",fam:"uk",scale:"alevel",board:"Cambridge",levels:[["AS Level (Year 12)",5],["A Level (Year 13)",6]],entry:"raw",
+       subjects:["al_bio","al_chem","al_phys","al_mat","al_eng","al_other"]},
+  edx_al:{name:"Pearson Edexcel International AS and A Level",grp:"British",fam:"uk",scale:"alevel",board:"Pearson Edexcel",levels:[["International AS (Year 12)",5],["International A Level (Year 13)",6]],entry:"raw",
+       subjects:["ial_bio","ial_chem","ial_phys","ial_mat","ial_other"]},
+  us_l:{name:"US middle and high school, letter grades A to F",grp:"United States",fam:"us",scale:"usl",levels:yrs("Grade ",6,12,0),entry:"pct",
+       subjects:["us_sci","us_mat","us_ela","us_ss","us_other"]},
+  us_s:{name:"US standards-based, NGSS and Common Core (4 to 1)",grp:"United States",fam:"us",scale:"ngss",levels:yrs("Grade ",6,12,0),entry:"native",
+       subjects:["uss_sci","uss_mat","uss_ela","uss_other"]},
+  cbse:{name:"CBSE",grp:"India",fam:"in",scale:"cbse",levels:yrs("Class ",6,12,0),entry:"raw",
+       subjects:["cb_sci","cb_phys","cb_chem","cb_bio","cb_mat","cb_eng","cb_sst","cb_other"]},
+  icse:{name:"CISCE: ICSE and ISC",grp:"India",fam:"in",scale:"icse",levels:yrs("Class ",6,12,0,i=>i<=10?" (ICSE)":" (ISC)"),entry:"raw",
+       subjects:["ic_sci","ic_phys","ic_chem","ic_bio","ic_mat","ic_eng","ic_hcg","ic_g3","ic_other"]},
+  custom:{name:"Local or national curriculum",grp:"Other",fam:"other",scale:"custom",levels:yrs("Grade ",6,12,0),entry:"pct",
+       subjects:["cu_sci","cu_mat","cu_lang","cu_hum","cu_other"]}
+};
+const FAM = {ib:"International Baccalaureate",uk:"British curriculum",us:"US curriculum",in:"Indian curriculum",other:"Local curriculum"};
+const FAM_WORDS = {ib:{comps:"Components",row:"component"},uk:{comps:"Papers",row:"paper"},us:{comps:"Gradebook categories",row:"category"},in:{comps:"Scholastic assessment",row:"assessment"},other:{comps:"Assessments",row:"assessment"}};
+/* Component: [code, name, max, weight, strength phrase, focus phrase] */
+const K = (code,n,max,w,s,f) => ({code,n,max,w,s,f});
+const SCI_F = {
+  mcq:["the multiple-choice questions","answering multiple-choice questions accurately by eliminating plausible distractors"],
+  theory:["the structured theory questions","writing full, precise answers to structured and extended questions using correct scientific terms"],
+  prac:["practical and experimental skills","planning experiments, recording results with correct units and precision, and evaluating methods"],
+  data:["the data-based questions","interpreting unfamiliar data, graphs and experimental uncertainties"],
+  plan:["planning, analysis and evaluation","designing investigations, identifying variables and evaluating data critically"]
+};
+const DP_SCI = opt => opt==="HL"
+  ? [K("P1A","Paper 1A (multiple choice)",40,19.2,"the multiple-choice questions in Paper 1A","answering Paper 1A multiple-choice questions accurately under time pressure"),
+     K("P1B","Paper 1B (data-based questions)",35,16.8,"the data-based questions in Paper 1B","interpreting unfamiliar data, graphs and uncertainties in Paper 1B"),
+     K("P2","Paper 2 (short and extended response)",90,44,"the short-answer and extended-response questions in Paper 2","writing detailed extended responses that address command terms precisely"),
+     K("IA","Internal assessment (scientific investigation)",24,20,"the scientific investigation","refining the research question and evaluating the method critically in the scientific investigation")]
+  : [K("P1A","Paper 1A (multiple choice)",30,19.6,"the multiple-choice questions in Paper 1A","answering Paper 1A multiple-choice questions accurately under time pressure"),
+     K("P1B","Paper 1B (data-based questions)",25,16.4,"the data-based questions in Paper 1B","interpreting unfamiliar data, graphs and uncertainties in Paper 1B"),
+     K("P2","Paper 2 (short and extended response)",50,44,"the short-answer and extended-response questions in Paper 2","writing detailed extended responses that address command terms precisely"),
+     K("IA","Internal assessment (scientific investigation)",24,20,"the scientific investigation","refining the research question and evaluating the method critically in the scientific investigation")];
+const DP_SCI_IA = [["Research design",6,"a focused research question and a well-justified method","developing a more focused research question and justifying the method"],["Data analysis",6,"clear, accurate processing of data","processing data accurately and treating uncertainties fully"],["Conclusion",6,"a well-supported conclusion","justifying the conclusion fully with the processed data and scientific context"],["Evaluation",6,"a thoughtful evaluation of the method","evaluating weaknesses in the method and suggesting realistic improvements"]];
+const DP_MATH = (opt, aa) => opt==="HL"
+  ? [K("P1",aa?"Paper 1 (no calculator)":"Paper 1 (calculator)",110,30,"Paper 1","showing clear, complete working in Paper 1"),
+     K("P2","Paper 2 (calculator)",110,30,"Paper 2","using the graphic display calculator efficiently and checking answers in Paper 2"),
+     K("P3","Paper 3 (extended problem solving)",55,20,"the extended problem-solving questions in Paper 3","tackling longer, unfamiliar problems in Paper 3 and generalising results"),
+     K("IA","Internal assessment (mathematical exploration)",20,20,"the mathematical exploration","using mathematics with greater sophistication and reflecting critically in the exploration")]
+  : [K("P1",aa?"Paper 1 (no calculator)":"Paper 1 (calculator)",80,40,"Paper 1","showing clear, complete working in Paper 1"),
+     K("P2","Paper 2 (calculator)",80,40,"Paper 2","using the graphic display calculator efficiently and checking answers in Paper 2"),
+     K("IA","Internal assessment (mathematical exploration)",20,20,"the mathematical exploration","using mathematics with greater sophistication and reflecting critically in the exploration")];
+const DP_MATH_IA = [["Presentation",4,"a well-organised, coherent exploration","organising the exploration so it is coherent and concise"],["Mathematical communication",4,"precise mathematical notation and terminology","using correct notation, labelled graphs and defined variables throughout"],["Personal engagement",3,"genuine personal engagement","showing more independent thinking and personal input"],["Reflection",3,"meaningful reflection on results","reflecting critically on results and their limitations"],["Use of mathematics",6,"accurate, well-understood mathematics","using mathematics at a more sophisticated level with full understanding"]];
+const DP_ENG = opt => opt==="HL"
+  ? [K("P1","Paper 1 (guided textual analysis)",40,35,"the guided textual analysis in Paper 1","analysing how unseen texts create meaning through specific language choices"),
+     K("P2","Paper 2 (comparative essay)",30,25,"the comparative essay in Paper 2","building a sustained comparison of two works with well-chosen evidence"),
+     K("HLE","HL essay",20,20,"the HL essay","developing a focused line of inquiry in the HL essay"),
+     K("IO","Individual oral",40,20,"the individual oral","linking the extracts and the global issue more precisely in the individual oral")]
+  : [K("P1","Paper 1 (guided textual analysis)",20,35,"the guided textual analysis in Paper 1","analysing how unseen texts create meaning through specific language choices"),
+     K("P2","Paper 2 (comparative essay)",30,35,"the comparative essay in Paper 2","building a sustained comparison of two works with well-chosen evidence"),
+     K("IO","Individual oral",40,30,"the individual oral","linking the extracts and the global issue more precisely in the individual oral")];
+const DP_IO_IA = [["Knowledge, understanding and interpretation",10,"secure knowledge and interpretation of the texts","supporting interpretations with more precise references to the texts"],["Analysis and evaluation",10,"perceptive analysis of authorial choices","analysing how authorial choices shape the global issue"],["Focus and organization",10,"a well-focused, organised oral","keeping the oral tightly focused and balanced between the two texts"],["Language",10,"clear, accurate and varied language","using a more precise and varied register"]];
+const DP_ECON = opt => opt==="HL"
+  ? [K("P1","Paper 1 (extended response)",25,20,"the extended responses in Paper 1","using accurate diagrams and real-world examples to support evaluation in Paper 1"),
+     K("P2","Paper 2 (data response)",40,30,"the data-response questions in Paper 2","applying theory to the data and calculations in Paper 2"),
+     K("P3","Paper 3 (policy paper)",60,30,"the policy questions in Paper 3","constructing and justifying policy recommendations in Paper 3"),
+     K("IA","Internal assessment (portfolio of commentaries)",45,20,"the commentary portfolio","linking each commentary closely to the chosen key concept")]
+  : [K("P1","Paper 1 (extended response)",25,30,"the extended responses in Paper 1","using accurate diagrams and real-world examples to support evaluation in Paper 1"),
+     K("P2","Paper 2 (data response)",40,40,"the data-response questions in Paper 2","applying theory to the data and calculations in Paper 2"),
+     K("IA","Internal assessment (portfolio of commentaries)",45,30,"the commentary portfolio","linking each commentary closely to the chosen key concept")];
+const DP_OTHER = opt => opt==="HL"
+  ? [K("P1","Paper 1",100,30,"Paper 1","exam technique and timing in Paper 1"),K("P2","Paper 2",100,30,"Paper 2","developing fuller answers in Paper 2"),K("P3","Paper 3 (HL)",100,20,"Paper 3","applying HL content in Paper 3"),K("IA","Internal assessment",100,20,"the internal assessment","meeting each internal assessment criterion more fully")]
+  : [K("P1","Paper 1",100,40,"Paper 1","exam technique and timing in Paper 1"),K("P2","Paper 2",100,40,"Paper 2","developing fuller answers in Paper 2"),K("IA","Internal assessment",100,20,"the internal assessment","meeting each internal assessment criterion more fully")];
+const IG_SCI = opt => opt==="Core"
+  ? [K("P1","Paper 1 (multiple choice, Core)",40,30,"the multiple-choice paper",SCI_F.mcq[1]),K("P3","Paper 3 (theory, Core)",80,50,"the theory paper",SCI_F.theory[1]),K("P5/6","Paper 5 or 6 (practical)",40,20,SCI_F.prac[0],SCI_F.prac[1])]
+  : [K("P2","Paper 2 (multiple choice, Extended)",40,30,"the multiple-choice paper",SCI_F.mcq[1]),K("P4","Paper 4 (theory, Extended)",80,50,"the theory paper",SCI_F.theory[1]),K("P5/6","Paper 5 or 6 (practical)",40,20,SCI_F.prac[0],SCI_F.prac[1])];
+const IG_MAT = opt => opt==="Core"
+  ? [K("P1","Paper 1 (non-calculator, Core)",80,50,"the non-calculator paper","accurate written methods without a calculator"),K("P3","Paper 3 (calculator, Core)",80,50,"the calculator paper","setting out multi-step solutions clearly on the calculator paper")]
+  : [K("P2","Paper 2 (non-calculator, Extended)",100,50,"the non-calculator paper","accurate written methods without a calculator"),K("P4","Paper 4 (calculator, Extended)",100,50,"the calculator paper","setting out multi-step solutions clearly on the calculator paper")];
+const IG_ENG = () => [K("P1","Paper 1 (reading)",80,50,"reading and summary skills","selecting relevant detail and analysing writers' use of language"),K("P2","Paper 2 (directed writing and composition)",80,50,"directed writing and composition","structuring writing and adapting style for audience and purpose")];
+const EIG_SCI = () => [K("P1","Paper 1",110,61.1,"Paper 1","applying knowledge to unfamiliar contexts in Paper 1"),K("P2","Paper 2",70,38.9,"Paper 2","the extension content and longer calculations in Paper 2")];
+const EIG_MAT = opt => [K("P1","Paper 1 ("+opt+")",100,50,"Paper 1","showing full working and checking answers in Paper 1"),K("P2","Paper 2 ("+opt+")",100,50,"Paper 2","tackling multi-step problems in Paper 2")];
+const EIG_ENG = () => [K("P1","Paper 1 (non-fiction and transactional writing)",90,60,"non-fiction reading and transactional writing","analysing non-fiction texts and writing clearly for a set audience"),K("P2","Paper 2 (poetry, prose and imaginative writing)",60,40,"poetry, prose and imaginative writing","analysing anthology texts and crafting imaginative writing")];
+const GEN2 = () => [K("P1","Paper 1",100,50,"Paper 1","exam technique and timing in Paper 1"),K("P2","Paper 2",100,50,"Paper 2","developing fuller, more detailed answers in Paper 2")];
+const AL_SCI = lvl => lvl===0
+  ? [K("P1","Paper 1 (multiple choice)",40,31,"the multiple-choice paper",SCI_F.mcq[1]),K("P2","Paper 2 (AS structured questions)",60,46,"the AS structured questions",SCI_F.theory[1]),K("P3","Paper 3 (advanced practical skills)",40,23,SCI_F.prac[0],SCI_F.prac[1])]
+  : [K("P1","Paper 1 (multiple choice)",40,15.5,"the multiple-choice paper",SCI_F.mcq[1]),K("P2","Paper 2 (AS structured questions)",60,23,"the AS structured questions",SCI_F.theory[1]),K("P3","Paper 3 (advanced practical skills)",40,11.5,SCI_F.prac[0],SCI_F.prac[1]),K("P4","Paper 4 (A Level structured questions)",100,38.5,"the A Level structured questions","connecting topics across the whole A Level course in longer structured answers"),K("P5","Paper 5 (planning, analysis and evaluation)",30,11.5,SCI_F.plan[0],SCI_F.plan[1])];
+const AL_MAT = lvl => lvl===0
+  ? [K("P1","Paper 1 (Pure Mathematics 1)",75,60,"pure mathematics","rigorous algebraic manipulation in pure mathematics"),K("P5","Paper 5 (Probability and Statistics 1)",50,40,"probability and statistics","interpreting probability and statistics questions in context")]
+  : [K("P1","Paper 1 (Pure Mathematics 1)",75,30,"Pure Mathematics 1","rigorous algebraic manipulation in pure mathematics"),K("P3","Paper 3 (Pure Mathematics 3)",75,30,"Pure Mathematics 3","calculus and proof in Pure Mathematics 3"),K("P4","Paper 4 (Mechanics)",50,20,"mechanics","modelling mechanics problems with clear force diagrams"),K("P5","Paper 5 (Probability and Statistics 1)",50,20,"probability and statistics","interpreting probability and statistics questions in context")];
+const AL_ENG = lvl => lvl===0
+  ? [K("P1","Paper 1 (reading)",50,50,"reading and analysis","analysing writers' language and structure in unseen texts"),K("P2","Paper 2 (writing)",50,50,"writing","shaping writing precisely for different forms and audiences")]
+  : [K("P1","Paper 1 (reading)",50,25,"reading and analysis","analysing writers' language and structure in unseen texts"),K("P2","Paper 2 (writing)",50,25,"writing","shaping writing precisely for different forms and audiences"),K("P3","Paper 3 (text analysis)",50,25,"text analysis","comparing texts and their contexts in detail"),K("P4","Paper 4 (language topics)",50,25,"language topics","using linguistic theory and evidence in language topic essays")];
+const IAL_SCI = lvl => lvl===0
+  ? [K("U1","Unit 1",80,40,"Unit 1","applying Unit 1 content to unfamiliar contexts"),K("U2","Unit 2",80,40,"Unit 2","longer calculations and explanations in Unit 2"),K("U3","Unit 3 (practical skills I)",50,20,"the practical skills unit",SCI_F.prac[1])]
+  : [K("U1","Unit 1",80,20,"Unit 1","applying Unit 1 content to unfamiliar contexts"),K("U2","Unit 2",80,20,"Unit 2","longer calculations and explanations in Unit 2"),K("U3","Unit 3 (practical skills I)",50,10,"the first practical skills unit",SCI_F.prac[1]),K("U4","Unit 4",90,20,"Unit 4","synoptic questions that draw on earlier units in Unit 4"),K("U5","Unit 5",90,20,"Unit 5","extended explanations and data analysis in Unit 5"),K("U6","Unit 6 (practical skills II)",50,10,"the second practical skills unit",SCI_F.plan[1])];
+const IAL_MAT = lvl => lvl===0
+  ? [K("P1","Pure Mathematics 1",75,33.3,"Pure Mathematics 1","rigorous algebra in Pure Mathematics 1"),K("P2","Pure Mathematics 2",75,33.3,"Pure Mathematics 2","calculus and series in Pure Mathematics 2"),K("A1","Mechanics 1 or Statistics 1",75,33.4,"the applied unit","modelling and interpreting the applied unit questions")]
+  : [K("P1","Pure Mathematics 1",75,16.7,"Pure Mathematics 1","rigorous algebra in Pure Mathematics 1"),K("P2","Pure Mathematics 2",75,16.7,"Pure Mathematics 2","calculus and series in Pure Mathematics 2"),K("P3","Pure Mathematics 3",75,16.7,"Pure Mathematics 3","advanced calculus in Pure Mathematics 3"),K("P4","Pure Mathematics 4",75,16.7,"Pure Mathematics 4","proof and vectors in Pure Mathematics 4"),K("A1","Applied unit 1",75,16.6,"the first applied unit","modelling in the applied units"),K("A2","Applied unit 2",75,16.6,"the second applied unit","interpreting results in context in the applied units")];
+const KS3 = (a) => a.map(([code,n,w,s,f])=>K(code,n,100,w,s,f));
+const CB_LOWER = (s,f) => [K("PT","Periodic tests",10,10,"the periodic tests","regular revision for the periodic tests"),K("NB","Notebook and portfolio",5,5,"the notebook and portfolio","keeping a complete, well-organised notebook"),K("SEA","Subject enrichment",5,5,"subject enrichment activities","subject enrichment activities"),K("HY","Half-yearly exam",80,40,"the half-yearly exam",f),K("AN","Annual exam",80,40,"the annual exam",f)];
+const CB_910 = (f, sea) => [K("TH","Theory exam",80,80,"the theory paper",f),K("PT","Periodic tests",5,5,"the periodic tests","consistent preparation for periodic tests"),K("MA","Multiple assessment",5,5,"the multiple assessment tasks","the quizzes, oral tests and projects in multiple assessment"),K("PF","Portfolio",5,5,"the portfolio","keeping a complete, reflective portfolio"),K("SEA",sea||"Subject enrichment",5,5,(sea||"subject enrichment").toLowerCase()+" activities","the "+(sea||"subject enrichment").toLowerCase()+" activities")];
+const CB_SR_SCI = f => [K("TH","Theory exam",70,70,"the theory paper",f),K("PR","Practical (experiments, record and project)",30,30,"practical work","accurate practical work, a complete practical record and a well-researched investigatory project")];
+const CB_SR = f => [K("TH","Theory exam",80,80,"the theory paper",f),K("IA","Internal assessment and project",20,20,"the internal assessment and project","the internal assessment and project work")];
+const IC_LOWER = f => [K("T1","First term exam",80,40,"the first term exam",f),K("T2","Second term exam",80,40,"the second term exam",f),K("IA","Internal assessment",20,20,"internal assessment","assignments and project work")];
+const IC_910 = f => [K("EX","External exam",80,80,"the written paper",f),K("IA","Internal assessment",20,20,"internal assessment","assignments, practical work and project work")];
+const IC_ISC_SCI = f => [K("TH","Theory paper",70,70,"the theory paper",f),K("PE","Practical exam",15,15,"the practical exam","accurate observations and calculations in the practical exam"),K("PJ","Project",10,10,"the project","planning and presenting the project in more depth"),K("PF","Practical file",5,5,"the practical file","keeping a complete practical file")];
+const SUBJ = {
+  /* IB DP */
+  dp_bio:{name:"Biology",grp:"sci",opts:["SL","HL"],tpl:c=>DP_SCI(c.opt),ia:DP_SCI_IA,iaName:"Internal assessment criteria (out of 24)"},
+  dp_chem:{name:"Chemistry",grp:"sci",opts:["SL","HL"],tpl:c=>DP_SCI(c.opt),ia:DP_SCI_IA,iaName:"Internal assessment criteria (out of 24)"},
+  dp_phys:{name:"Physics",grp:"sci",opts:["SL","HL"],tpl:c=>DP_SCI(c.opt),ia:DP_SCI_IA,iaName:"Internal assessment criteria (out of 24)"},
+  dp_maa:{name:"Mathematics: analysis and approaches",grp:"mat",opts:["SL","HL"],tpl:c=>DP_MATH(c.opt,true),ia:DP_MATH_IA,iaName:"Exploration criteria (out of 20)"},
+  dp_mai:{name:"Mathematics: applications and interpretation",grp:"mat",opts:["SL","HL"],tpl:c=>DP_MATH(c.opt,false),ia:DP_MATH_IA,iaName:"Exploration criteria (out of 20)"},
+  dp_engll:{name:"English A: language and literature",grp:"lal",opts:["SL","HL"],tpl:c=>DP_ENG(c.opt),ia:DP_IO_IA,iaName:"Individual oral criteria (out of 40)",iaCode:"IO"},
+  dp_englit:{name:"English A: literature",grp:"lal",opts:["SL","HL"],tpl:c=>DP_ENG(c.opt),ia:DP_IO_IA,iaName:"Individual oral criteria (out of 40)",iaCode:"IO"},
+  dp_econ:{name:"Economics",grp:"ins",opts:["SL","HL"],tpl:c=>DP_ECON(c.opt)},
+  dp_other:{name:"Other DP subject (edit components)",grp:"ins",opts:["SL","HL"],tpl:c=>DP_OTHER(c.opt)},
+  /* KS3 */
+  ks3_sci:{name:"Science",grp:"sci",tpl:()=>KS3([["UT","End-of-unit tests",50,"the end-of-unit tests","secure recall and application in end-of-unit tests"],["EY","End-of-year exam",30,"the end-of-year exam","linking ideas across topics in the end-of-year exam"],["WS","Working scientifically (practical)",20,"working scientifically","planning fair tests and evaluating results"]])},
+  ks3_mat:{name:"Mathematics",grp:"mat",tpl:()=>KS3([["UA","Unit assessments",50,"the unit assessments","fluency with key methods in unit assessments"],["EY","End-of-year exam",30,"the end-of-year exam","reasoning and problem solving in the end-of-year exam"],["CW","Classwork and homework",20,"classwork and homework","completing classwork and homework with full working"]])},
+  ks3_eng:{name:"English",grp:"lal",tpl:()=>KS3([["RD","Reading",40,"reading","analysing writers' choices with well-chosen quotations"],["WR","Writing",40,"writing","planning and proofreading writing carefully"],["SL","Spoken language",20,"spoken language","speaking with confidence in discussions and presentations"]])},
+  ks3_other:{name:"Other subject (edit assessments)",grp:"ins",tpl:()=>KS3([["AS","Assessments",60,"assessments","preparation for assessments"],["CW","Classwork and homework",40,"classwork and homework","consistent classwork and homework"]])},
+  /* Cambridge IGCSE */
+  ig_bio:{name:"Biology (0610)",grp:"sci",opts:["Core","Extended"],tpl:c=>IG_SCI(c.opt)},
+  ig_chem:{name:"Chemistry (0620)",grp:"sci",opts:["Core","Extended"],tpl:c=>IG_SCI(c.opt)},
+  ig_phys:{name:"Physics (0625)",grp:"sci",opts:["Core","Extended"],tpl:c=>IG_SCI(c.opt)},
+  ig_mat:{name:"Mathematics (0580)",grp:"mat",opts:["Core","Extended"],tpl:c=>IG_MAT(c.opt)},
+  ig_eng:{name:"English, first language (0500)",grp:"lal",tpl:IG_ENG},
+  ig_other:{name:"Other IGCSE subject (edit papers)",grp:"ins",opts:["Core","Extended"],tpl:GEN2},
+  /* Edexcel International GCSE */
+  eig_bio:{name:"Biology (4BI1)",grp:"sci",tpl:EIG_SCI},
+  eig_chem:{name:"Chemistry (4CH1)",grp:"sci",tpl:EIG_SCI},
+  eig_phys:{name:"Physics (4PH1)",grp:"sci",tpl:EIG_SCI},
+  eig_mat:{name:"Mathematics A (4MA1)",grp:"mat",opts:["Foundation","Higher"],tpl:c=>EIG_MAT(c.opt)},
+  eig_eng:{name:"English Language A (4EA1)",grp:"lal",tpl:EIG_ENG},
+  eig_other:{name:"Other International GCSE subject (edit papers)",grp:"ins",tpl:GEN2},
+  /* Cambridge AS and A Level */
+  al_bio:{name:"Biology (9700)",grp:"sci",tpl:c=>AL_SCI(c.level)},
+  al_chem:{name:"Chemistry (9701)",grp:"sci",tpl:c=>AL_SCI(c.level)},
+  al_phys:{name:"Physics (9702)",grp:"sci",tpl:c=>AL_SCI(c.level)},
+  al_mat:{name:"Mathematics (9709)",grp:"mat",tpl:c=>AL_MAT(c.level)},
+  al_eng:{name:"English Language (9093)",grp:"lal",tpl:c=>AL_ENG(c.level)},
+  al_other:{name:"Other AS or A Level subject (edit papers)",grp:"ins",tpl:GEN2},
+  /* Edexcel IAL */
+  ial_bio:{name:"Biology (XBI11 / YBI11)",grp:"sci",tpl:c=>IAL_SCI(c.level)},
+  ial_chem:{name:"Chemistry (XCH11 / YCH11)",grp:"sci",tpl:c=>IAL_SCI(c.level)},
+  ial_phys:{name:"Physics (XPH11 / YPH11)",grp:"sci",tpl:c=>IAL_SCI(c.level)},
+  ial_mat:{name:"Mathematics (XMA01 / YMA01)",grp:"mat",tpl:c=>IAL_MAT(c.level)},
+  ial_other:{name:"Other IAL subject (edit units)",grp:"ins",tpl:GEN2},
+  /* US letter grades: weighted gradebook categories */
+  us_sci:{name:"Science",grp:"sci",tpl:()=>KS3([["TS","Tests",40,"unit tests","preparing thoroughly for unit tests"],["QZ","Quizzes",20,"quizzes","reviewing material regularly before quizzes"],["LB","Labs and projects",25,"labs and projects","writing complete lab reports with analysis of results"],["HW","Homework and classwork",15,"homework and classwork","completing homework and classwork consistently"]])},
+  us_mat:{name:"Math",grp:"mat",tpl:()=>KS3([["TS","Tests",40,"tests","showing complete work on tests"],["QZ","Quizzes",20,"quizzes","regular practice before quizzes"],["CW","Classwork",20,"classwork","using class time productively"],["HW","Homework",20,"homework","completing homework practice consistently"]])},
+  us_ela:{name:"English language arts",grp:"lal",tpl:()=>KS3([["WR","Essays and writing",35,"essays and writing","developing claims with relevant evidence in essays"],["RA","Reading assessments",30,"reading assessments","citing textual evidence to support analysis"],["PR","Projects and presentations",15,"projects and presentations","presenting ideas clearly to an audience"],["HW","Homework and participation",20,"homework and participation","contributing to discussions and completing homework"]])},
+  us_ss:{name:"Social studies",grp:"ins",tpl:()=>KS3([["TS","Tests",40,"tests","using evidence and vocabulary on tests"],["PR","Projects",30,"projects","researching and citing sources in projects"],["CW","Classwork",15,"classwork","staying focused in class activities"],["HW","Homework",15,"homework","completing homework on time"]])},
+  us_other:{name:"Other course (edit categories)",grp:"ins",tpl:()=>KS3([["TS","Tests",50,"tests","test preparation"],["CW","Classwork and projects",30,"classwork and projects","classwork and projects"],["HW","Homework",20,"homework","homework completion"]])},
+  /* US standards-based */
+  uss_sci:{name:"Science (NGSS)",grp:"sci",tpl:()=>[K("SEP","Science and engineering practices",4,1,"the science and engineering practices","planning investigations, analysing data and constructing explanations from evidence"),K("DCI","Disciplinary core ideas",4,1,"the disciplinary core ideas","explaining core ideas in more depth using models"),K("CCC","Crosscutting concepts",4,1,"the crosscutting concepts","connecting ideas such as patterns, cause and effect, and systems across topics")]},
+  uss_mat:{name:"Math (Common Core)",grp:"mat",tpl:()=>[K("CS","Grade-level content standards",4,1,"the grade-level content standards","mastering the grade-level content standards"),K("MP1","Problem solving and perseverance",4,1,"problem solving","making sense of problems and persevering in solving them"),K("MP3","Reasoning and arguments",4,1,"mathematical reasoning","constructing viable arguments and critiquing the reasoning of others"),K("MP6","Precision",4,1,"precision","attending to precision in calculations and vocabulary")]},
+  uss_ela:{name:"English language arts (Common Core)",grp:"lal",tpl:()=>[K("RL","Reading literature",4,1,"reading literature","analysing themes and characters with textual evidence"),K("RI","Reading informational text",4,1,"reading informational text","determining central ideas in informational texts"),K("W","Writing",4,1,"writing","organising writing and supporting claims with evidence"),K("SL","Speaking and listening",4,1,"speaking and listening","building on others' ideas in collaborative discussion"),K("L","Language",4,1,"language conventions","applying grammar and vocabulary conventions accurately")]},
+  uss_other:{name:"Other course (edit standards)",grp:"ins",tpl:()=>[K("S1","Standard 1",4,1,"the first standard","the first standard"),K("S2","Standard 2",4,1,"the second standard","the second standard"),K("S3","Standard 3",4,1,"the third standard","the third standard")]},
+  /* CBSE */
+  cb_sci:{name:"Science",grp:"sci",tpl:c=>c.level<=2?CB_LOWER(0,"applying concepts and answering competency-based questions"):c.level<=4?CB_910("answering competency-based and case-based questions in the theory paper","Subject enrichment (practical work)"):CB_SR_SCI("explaining concepts fully in the theory paper")},
+  cb_phys:{name:"Physics",grp:"sci",tpl:c=>c.level>=5?CB_SR_SCI("numerical problems and derivations in the theory paper"):CB_910("numerical problems in the theory paper","Subject enrichment (practical work)")},
+  cb_chem:{name:"Chemistry",grp:"sci",tpl:c=>c.level>=5?CB_SR_SCI("reaction mechanisms and numericals in the theory paper"):CB_910("chemical equations and numericals in the theory paper","Subject enrichment (practical work)")},
+  cb_bio:{name:"Biology",grp:"sci",tpl:c=>c.level>=5?CB_SR_SCI("labelled diagrams and case-based questions in the theory paper"):CB_910("labelled diagrams in the theory paper","Subject enrichment (practical work)")},
+  cb_mat:{name:"Mathematics",grp:"mat",tpl:c=>c.level<=2?CB_LOWER(0,"step-by-step working in exams"):c.level<=4?CB_910("showing every step in the theory paper","Subject enrichment (lab activities)"):CB_SR("showing every step and checking answers in the theory paper")},
+  cb_eng:{name:"English",grp:"lal",tpl:c=>c.level<=2?CB_LOWER(0,"reading comprehension and writing skills"):c.level<=4?CB_910("reading comprehension, writing and literature answers","Speaking and listening"):CB_SR("reading comprehension, writing and literature answers")},
+  cb_sst:{name:"Social science",grp:"ins",tpl:c=>c.level<=2?CB_LOWER(0,"answering source-based and map questions"):CB_910("source-based, case-based and map questions in the theory paper","Project work")},
+  cb_other:{name:"Other subject (edit assessments)",grp:"ins",tpl:c=>c.level<=2?CB_LOWER(0,"exam preparation"):c.level<=4?CB_910("exam preparation"):CB_SR("exam preparation")},
+  /* CISCE */
+  ic_sci:{name:"Science (Classes 6 to 8)",grp:"sci",tpl:c=>IC_LOWER("explaining concepts with labelled diagrams")},
+  ic_phys:{name:"Physics",grp:"sci",tpl:c=>c.level>=5?IC_ISC_SCI("numericals and derivations"):c.level>=3?IC_910("numericals and definitions in the written paper"):IC_LOWER("numericals and definitions")},
+  ic_chem:{name:"Chemistry",grp:"sci",tpl:c=>c.level>=5?IC_ISC_SCI("equations, mechanisms and numericals"):c.level>=3?IC_910("balanced equations and numericals in the written paper"):IC_LOWER("balanced equations")},
+  ic_bio:{name:"Biology",grp:"sci",tpl:c=>c.level>=5?IC_ISC_SCI("labelled diagrams and explanations"):c.level>=3?IC_910("labelled diagrams and precise terms in the written paper"):IC_LOWER("labelled diagrams")},
+  ic_mat:{name:"Mathematics",grp:"mat",tpl:c=>c.level>=5?CB_SR("showing complete working"):c.level>=3?IC_910("showing complete working in the written paper"):IC_LOWER("showing complete working")},
+  ic_eng:{name:"English",grp:"lal",tpl:c=>c.level>=5?CB_SR("composition, comprehension and literature answers"):c.level>=3?IC_910("composition, comprehension and literature answers"):IC_LOWER("composition and comprehension")},
+  ic_hcg:{name:"History, civics and geography",grp:"ins",tpl:c=>c.level>=3?IC_910("structured answers and map work"):IC_LOWER("structured answers and map work")},
+  ic_g3:{name:"Group III subject (e.g. Computer Applications)",grp:"des",tpl:()=>[K("EX","External exam",100,50,"the written paper","structured answers in the written paper"),K("IA","Internal assessment (practical work)",100,50,"practical and project work","practical and project work")]},
+  ic_other:{name:"Other subject (edit assessments)",grp:"ins",tpl:c=>c.level>=3?IC_910("exam preparation"):IC_LOWER("exam preparation")},
+  /* Custom */
+  cu_sci:{name:"Science",grp:"sci",tpl:()=>KS3([["T1","Tests",50,"tests","test preparation"],["PR","Practical work",25,"practical work","practical work and lab reports"],["CW","Classwork and homework",25,"classwork and homework","classwork and homework"]])},
+  cu_mat:{name:"Mathematics",grp:"mat",tpl:()=>KS3([["T1","Tests",60,"tests","showing full working in tests"],["CW","Classwork and homework",40,"classwork and homework","regular practice"]])},
+  cu_lang:{name:"Language",grp:"lal",tpl:()=>KS3([["RD","Reading",35,"reading","reading comprehension"],["WR","Writing",35,"writing","writing accuracy"],["SP","Speaking and listening",30,"speaking and listening","speaking with confidence"]])},
+  cu_hum:{name:"Humanities",grp:"ins",tpl:()=>KS3([["T1","Tests",50,"tests","using evidence in tests"],["PR","Projects",30,"projects","research projects"],["CW","Classwork",20,"classwork","classwork"]])},
+  cu_other:{name:"Other subject (edit assessments)",grp:"ins",tpl:()=>KS3([["A1","Assessment 1",34,"the first assessment","the first assessment"],["A2","Assessment 2",33,"the second assessment","the second assessment"],["A3","Assessment 3",33,"the third assessment","the third assessment"]])}
+};
+/* Grade caps by tier */
+const CAPS = {"cie_ig|Core":{top:"C"},"cie_ig|Extended":{bottom:"E"},"cie_ig9|Core":{top:"5"},"edx_ig|Foundation":{top:"5"},"edx_ig|Higher":{bottom:"3"}};
+/* Co-scholastic areas (CBSE) */
+const COSCH = {lower:["Work education","Art education","Health and physical education","Discipline"],senior:["Work experience","Health and physical education","General studies","Discipline"]};
+const TERMS = {
+  myp:"MYP terminology (criteria, global contexts, learner profile, ATL skills)",
+  dp:"IB Diploma terminology (papers such as Paper 1A and Paper 1B, internal assessment, predicted grades 7 to 1, learner profile, ATL skills)",
+  ks3:"British Key Stage 3 terminology (attainment, targets, next steps)",
+  cie_ig:"Cambridge IGCSE terminology (named papers, Core and Extended tiers, target and predicted grades, exam technique)",
+  cie_ig9:"Cambridge IGCSE terminology (named papers, Core and Extended tiers, target and predicted grades, exam technique)",
+  edx_ig:"Pearson Edexcel International GCSE terminology (Paper 1 and Paper 2, Foundation and Higher tiers where relevant, target and predicted grades)",
+  cie_al:"Cambridge International AS and A Level terminology (named papers, practical skills papers, predicted grades)",
+  edx_al:"Pearson Edexcel International A Level terminology (units, practical skills units, predicted grades)",
+  us_l:"US school terminology (gradebook categories, assignments, tests, labs)",
+  us_s:"US standards-based terminology (NGSS dimensions or Common Core standards, mastery levels)",
+  cbse:"CBSE terminology (theory paper, periodic tests, internal assessment, practicals, co-scholastic areas)",
+  icse:"CISCE terminology (written paper, internal assessment, practical file, project)",
+  custom:"the school's usual reporting terminology"
+};
+
+/* ---------- Curriculum helpers (v3) ---------- */
+const curOf = c => CURRICULA[c.cur] || CURRICULA.myp;
+const isMyp = c => (c.cur||"myp")==="myp";
+const isIB = c => !!curOf(c).ib;
+const famOf = c => curOf(c).fam;
+const native = c => c.entry==="native";
+const sdef = c => isMyp(c) ? null : (SUBJ[c.subject] || SUBJ[curOf(c).subjects[0]]);
+const grpOf = c => isMyp(c) ? c.subject : sdef(c).grp;
+function optsOf(c){ const d = sdef(c); return d && d.opts ? d.opts : null; }
+function comps(c){
+  if(isMyp(c)) return SUBJECTS[c.subject].crit.map((cr,i)=>({code:"ABCD"[i],n:cr[0],s:lowerFirst(cr[0])+" (Criterion "+"ABCD"[i]+")",f:cr[1],max:8,w:1}));
+  const base = sdef(c).tpl(c);
+  if(Array.isArray(c.comps) && c.comps.length) return c.comps.map((x,i)=>{ const b = base[i] || {}; return {code:x.code||("C"+(i+1)), n:x.n, max:+x.max||100, w:+x.w||0,
+    s: x.n===b.n ? b.s : "the "+lowerFirst(x.n), f: x.n===b.n ? b.f : "improving performance in "+lowerFirst(x.n)}; });
+  return base;
+}
+const crits = c => comps(c).map(x=>[x.n, x.f]);
+function scaleOf(c){
+  if(isMyp(c)) return null;
+  const key = curOf(c).scale, base = SCALES[key];
+  let g = base.g.map(x=>x.slice());
+  if(key==="alevel" && c.level===0) g = g.filter(x=>x[0]!=="A*");
+  const ov = c.bounds && c.bounds[key];
+  if(ov && ov.length===g.length) g = g.map((x,i)=>{ const y = x.slice(); y[1] = ov[i].min; if(key==="custom" && ov[i].lab) y[0] = ov[i].lab; return y; });
+  const cap = CAPS[c.cur+"|"+c.opt];
+  if(cap && cap.top){ const t = g.findIndex(x=>x[0]===cap.top); if(t>0){ g = g.slice(t); } }
+  if(cap && cap.bottom){ const b = g.findIndex(x=>x[0]===cap.bottom), fail = g[g.length-1]; if(b>=0 && b<g.length-2){ g = g.slice(0,b+1).concat([[fail[0], fail[1], "fail", fail[3]||"ungraded"]]); g[g.length-1][1] = 0; } }
+  return {key, kind:base.kind, name:base.name, g};
+}
+function subjName(c, k){
+  k = k || c.subject;
+  if(isMyp(c)) return (SUBJECTS[k]||SUBJECTS.sci).name;
+  return (SUBJ[k]||{}).name || "Subject";
+}
+const plainSubj = c => isMyp(c) ? subjName(c) : subjName(c).replace(/\s*\(.*\)$/,"");
+const levelName = c => (curOf(c).levels[c.level]||curOf(c).levels[0])[0];
+const stageIdx = c => (curOf(c).levels[c.level]||curOf(c).levels[0])[1];
+function equivText(c){
+  const i = stageIdx(c), out = [];
+  out.push(i<=4 ? "MYP "+(i+1) : "DP "+(i-4));
+  out.push("Year "+(i+7)+" (UK)", "Grade "+(i+6)+" (US)", "Class "+(i+6)+" (India)");
+  const mine = levelName(c).toLowerCase();
+  const others = out.filter(x=>!mine.startsWith(x.toLowerCase().replace(/ \(.*\)$/,"")));
+  return `Same stage elsewhere: ${others.join(", ")}. Typical age ${i+11} to ${i+12}.`;
+}
+function maxOf(c, i){ const k = comps(c)[i]; if(isMyp(c)) return native(c) ? 8 : 100; return c.entry==="raw" ? k.max : 100; }
+function gradeFromPct(sc, p){ for(let i=0;i<sc.g.length;i++) if(p>=sc.g[i][1]) return i; return sc.g.length-1; }
+function toPct(c, i, m){
+  if(m==null) return null;
+  if(c.entry==="pct") return m;
+  if(isMyp(c)) return Math.round(m*12.5);
+  if(c.entry==="raw"){ const mx = comps(c)[i] ? comps(c)[i].max : 100; return Math.round(m/mx*1000)/10; }
+  const sc = scaleOf(c), j = Math.min(m, sc.g.length-1), lo = sc.g[j][1], hi = j===0 ? 100 : sc.g[j-1][1]-1;
+  return Math.round((lo+hi)/2);
+}
+function fromPct(c, i, p){
+  if(p==null) return null;
+  p = Math.max(0, Math.min(100, p));
+  if(c.entry==="pct") return Math.round(p);
+  if(isMyp(c)) return Math.round(p*8/100);
+  if(c.entry==="raw"){ const mx = comps(c)[i] ? comps(c)[i].max : 100; return Math.round(p*mx/100*2)/2; }
+  return gradeFromPct(scaleOf(c), p);
+}
+function normScore(c, i, m){
+  if(m==null) return null;
+  if(isMyp(c)) return native(c) ? m/8 : m/100;
+  if(c.entry==="native"){ const n = scaleOf(c).g.length; return n>1 ? 1 - m/(n-1) : 1; }
+  return toPct(c, i, m)/100;
+}
+function markLabel(c, i, m){
+  if(m==null) return "";
+  if(!isMyp(c) && native(c)){ const sc = scaleOf(c); return (sc.g[m]||[""])[0]; }
+  if(c.entry==="pct") return m+"%";
+  if(c.entry==="raw" && !isMyp(c)) return m+"/"+comps(c)[i].max;
+  return String(m);
+}
+/* Overall result: {lab, band, tot, pct, g, partial, done, of, pred} or null */
+function overall(c, st){
+  const K = comps(c), n = K.length, ms = st.marks.slice(0,n);
+  if(isMyp(c)){
+    if(ms.length<n || ms.some(m=>m==null)) return null;
+    const lv = native(c) ? ms : ms.map(p=>Math.round(p*8/100));
+    const t = lv.reduce((a,b)=>a+b,0); if(t<=0) return null;
+    const b = BOUNDS[lv.length]; if(!b) return null;
+    let g = null; for(let i=0;i<b.length;i++) if(t>=b[i][0] && t<=b[i][1]) g = i+1;
+    if(g==null) return null;
+    const pct = native(c) ? null : Math.round(ms.reduce((a,b)=>a+b,0)/n);
+    return {lab:String(g), g, band:g>=6?"high":g>=4?"mid":"low", tot:t+"/"+(n*8)+(pct!=null?" ("+pct+"%)":""), pct, partial:false};
+  }
+  const sc = scaleOf(c), have = K.map((k,i)=>({k,i,m:ms[i]})).filter(x=>x.m!=null);
+  let res = null;
+  if(have.length){
+    const W = have.reduce((a,x)=>a+(x.k.w||0),0) || have.length, wt = x => (x.k.w||0) || 1;
+    if(native(c)){
+      const idx = Math.round(have.reduce((a,x)=>a+x.m*wt(x),0)/(W||1)), row = sc.g[Math.min(idx, sc.g.length-1)];
+      res = {lab:row[0], band:row[2], desc:row[3]||"", tot:"", pct:null};
+    } else {
+      const pct = Math.round(have.reduce((a,x)=>a+toPct(c,x.i,x.m)*wt(x),0)/(W||1)*10)/10, row = sc.g[gradeFromPct(sc, pct)];
+      res = {lab:row[0], band:row[2], desc:row[3]||"", tot:Math.round(pct)+"%", pct:Math.round(pct)};
+    }
+    res.partial = have.length<n; res.done = have.length; res.of = n;
+  }
+  if(st.pred && sc.g.some(x=>x[0]===st.pred)){
+    const row = sc.g.find(x=>x[0]===st.pred);
+    res = Object.assign(res||{tot:"",pct:null,partial:false}, {lab:row[0], band:row[2], desc:row[3]||"", pred:true});
+  }
+  return res;
+}
+const article = w => /^[aeiou8]/i.test(w) || /^(11|18)\b/.test(w) ? "an" : "a";
+function resultPhrase(c, o){
+  const sc = scaleOf(c), p = o.pct!=null && !o.pred && sc.kind!=="pct" ? ` (${o.pct}%)` : "";
+  const pre = o.pred ? "a predicted grade of " : "";
+  if(sc.kind==="letter") return o.pred ? `a predicted ${o.lab}` : `${/^[AEF]$/.test(o.lab)?"an":"a"} ${o.lab}${p}`;
+  if(sc.kind==="sbg") return `level ${o.lab}, ${o.desc}${p}`;
+  if(sc.kind==="level") return `the ${o.lab} level of attainment${p}`;
+  if(sc.kind==="pct") return o.pct!=null && !o.pred ? `an overall score of ${o.pct}%` : (o.band==="fail" ? "results below the pass mark" : `${o.lab.toLowerCase()} results overall`);
+  if(o.pred) return pre+o.lab;
+  if(o.band==="fail" && o.desc) return `a grade ${o.lab} (${o.desc}${o.pct!=null?", "+o.pct+"%":""})`;
+  return `a grade ${o.lab}${p}`;
+}
+function scaleSummary(c){
+  if(isMyp(c)) return "MYP criteria marked 0 to 8, final grade 1 to 7 from IB boundaries";
+  const sc = scaleOf(c);
+  return sc.name+(c.opt?" ("+c.opt+")":"")+": "+sc.g.map(x=>x[0]+(x[1]>0?" from "+x[1]+"%":" below "+(sc.g[sc.g.length-2]||[0,0])[1]+"%")).join(", ");
+}
+function compSummary(c){
+  if(isMyp(c)) return "";
+  return comps(c).map(k=>`${k.n}, out of ${k.max}, ${k.w}% of the final grade`).join("; ");
+}
+function cosch(c){ if(c.cur!=="cbse") return null; return c.level>=5 ? COSCH.senior : COSCH.lower; }
+const COSCH_SCALE = ["A","B","C","D","E"];
+const COSCH_WORD = {A:"outstanding",B:"very good",C:"good",D:"fair",E:"needs improvement"};
+
 /* ---------- State ---------- */
 const newId = () => Math.random().toString(36).slice(2,10);
 function mkStudent(name, g, n){
@@ -536,12 +977,14 @@ function mkStudent(name, g, n){
 function normStudent(st, n){
   if(!Array.isArray(st.lpS)) st.lpS = Array.isArray(st.lp) ? st.lp.slice(0,2) : [];
   delete st.lp;
-  ["lpG","atlS","atlD","note","comment"].forEach(k=>{ if(typeof st[k]!=="string") st[k]=""; });
+  ["lpG","atlS","atlD","note","comment","pred","target"].forEach(k=>{ if(typeof st[k]!=="string") st[k]=""; });
   if(ATL_OLD[st.atlS]) st.atlS = ATL_OLD[st.atlS];
   if(ATL_OLD[st.atlD]) st.atlD = ATL_OLD[st.atlD];
   if(st.atlS && !ATL_MAP[st.atlS]) st.atlS = "";
   if(st.atlD && !ATL_MAP[st.atlD]) st.atlD = "";
   if(!Array.isArray(st.str)) st.str = [];
+  if(!Array.isArray(st.ia)) st.ia = [];
+  if(!st.co || typeof st.co!=="object") st.co = {};
   OPTIONAL.forEach(k=>{ if(!(k in st)) st[k] = null; });
   ["eng","beh","hw","eff"].forEach(k=>{ if(typeof st[k]!=="number") st[k] = 1; });
   if(!Array.isArray(st.marks)) st.marks = [];
@@ -551,12 +994,20 @@ function normStudent(st, n){
   return st;
 }
 function normClass(c){
-  if(!SUBJECTS[c.subject]) c.subject = "sci";
+  if(!CURRICULA[c.cur]) c.cur = "myp";
+  const cu = CURRICULA[c.cur];
+  if(c.cur==="myp"){ if(!SUBJECTS[c.subject]) c.subject = "sci"; }
+  else if(!cu.subjects.includes(c.subject)) c.subject = cu.subjects[0];
+  if(typeof c.level!=="number" || !cu.levels[c.level]) c.level = 0;
+  if(!["native","pct","raw"].includes(c.entry) || (c.cur==="myp" && c.entry==="raw")) c.entry = cu.entry || "native";
+  const op = optsOf(c); if(op){ if(!op.includes(c.opt)) c.opt = op[op.length-1]; } else c.opt = "";
+  if(!c.bounds || typeof c.bounds!=="object") c.bounds = {};
+  if(!Array.isArray(c.comps)) c.comps = null;
   ["unit","gc","rcOther","course","label"].forEach(k=>{ if(typeof c[k]!=="string") c[k] = k==="label" ? (c.id||"Class") : ""; });
   if(!Array.isArray(c.kc)) c.kc = [];
   if(!Array.isArray(c.rc)) c.rc = [];
   if(!Array.isArray(c.students)) c.students = [];
-  const n = SUBJECTS[c.subject].crit.length;
+  const n = comps(c).length;
   c.students.forEach(st=>normStudent(st, n));
   return c;
 }
@@ -614,6 +1065,14 @@ const ACH = {
        "A final grade of {g} shows there is room to grow, although there was real promise in {strong}."],
   none:["The strongest work this term was in {strong}."]
 };
+const ACH2 = {
+  high:["{N} achieved {gp} this term, with particular strength in {strong}.","Achieving {gp} reflects a high standard of work this term, especially in {strong}."],
+  mid:["{N} achieved {gp} this term, showing secure understanding, with the strongest work in {strong}.","Achieving {gp} reflects good progress this term, and the strongest work was seen in {strong}."],
+  low:["{N} achieved {gp} this term, with the best work seen in {strong}.","Achieving {gp} shows there is room to grow, although there was real promise in {strong}."],
+  fail:["{N} has not yet reached the expected standard this term, achieving {gp}, although there was some promise in {strong}.","With {gp} this term, {N} has not yet reached the expected standard, although there was some promise in {strong}."],
+  none:["The strongest work this term was in {strong}."]
+};
+const LSK = ["{N} has shown well-developed {atl}.","{N} has shown real strength in {atl}."];
 const STR = ["{N} has shown particular skill in {strs}.","Particular strengths this term have included {strs}."];
 const LPATL = {
   both:["{N} has shown the qualities of {lpA} learner, and the student’s {atlC} are a real strength.",
@@ -641,24 +1100,25 @@ function relatedConcepts(c){
 }
 
 function templateComment(c, st){
-  const sj = subj(c), L = letters(sj.crit.length), len = state.settings.length || "medium";
+  const K = comps(c), len = state.settings.length || "medium", myp = isMyp(c), ib = isIB(c), fam = famOf(c);
   const seed = k => st.name + "|" + k + "|" + st.v;
-  const marked = st.marks.map((m,i)=>({m,i})).filter(x=>x.m!=null);
+  let marked = st.marks.slice(0,K.length).map((m,i)=>({m:normScore(c,i,m),i})).filter(x=>x.m!=null);
+  const major = marked.filter(x=>(+K[x.i].w||0)>=15); if(major.length>=2) marked = major;
   let strong = null, weak = null;
   if(marked.length){
     strong = marked.reduce((a,b)=>b.m>a.m?b:a);
     weak = marked.reduce((a,b)=>b.m<a.m?b:a);
+    if(marked.length>1 && strong.i===weak.i) weak = marked.find(x=>x.i!==strong.i) || weak;
   }
-  const critName = i => lowerFirst(sj.crit[i][0])+" (Criterion "+L[i]+")";
-  const adjs = st.lpS.map(lpAdj).filter(Boolean).slice(0,2);
+  const adjs = ib ? st.lpS.map(lpAdj).filter(Boolean).slice(0,2) : [];
   const lpA = adjs.length ? (/^[aeiou]/i.test(adjs[0])?"an ":"a ")+adjs.join(" and ") : "";
-  const g = grade(st), course = c.course||sj.name;
+  const ov = overall(c, st), g = myp && ov ? ov.g : null, course = c.course||plainSubj(c);
   const atl = st.atlS ? ATL_MAP[st.atlS].phrase : "", atlD = st.atlD ? ATL_MAP[st.atlD].phrase : "";
-  const lpGadj = st.lpG ? lpAdj(st.lpG) : "";
+  const lpGadj = ib && st.lpG ? lpAdj(st.lpG) : "";
   const map = {
     N:st.first, Ns:st.first+(/s$/i.test(st.first)?"’":"’s"), course,
     where: c.unit.trim() ? "our unit on "+c.unit.trim() : course+" lessons",
-    g, strong:strong?critName(strong.i):"", focus:weak?sj.crit[weak.i][1]:"",
+    g, gp: ov && !myp ? resultPhrase(c, ov) : "", strong:strong?K[strong.i].s:"", focus:weak?K[weak.i].f:"",
     lpA, atl, atlC: atl + (atl.includes(",") ? "," : ""), atlD, lpGadj, strs: andList(st.str.slice(0,2)),
     atlpart: atlD ? ", while also developing "+atlD : "",
     lpg: (len!=="short" && lpGadj) ? ", and aim to become a more "+lpGadj+" learner" : ""
@@ -669,21 +1129,44 @@ function templateComment(c, st){
   out.push(pick(ENG[st.eng], seed("eng")));
   if(!short && st.prog!=null) out.push(pick(PROG[st.prog], seed("prog")));
   if(strong){
-    const key = g==null ? "none" : g>=6 ? "high" : g>=4 ? "mid" : "low";
-    out.push(pick(ACH[key], seed("ach")));
+    if(myp){ const key = g==null ? "none" : g>=6 ? "high" : g>=4 ? "mid" : "low"; out.push(pick(ACH[key], seed("ach"))); }
+    else { let t = pick(ACH2[ov ? ov.band : "none"], seed("ach")); if(ov && ov.partial && !ov.pred && !short) t = t.replace(/this term/, "on the assessments completed so far"); out.push(t); }
+  }
+  /* tier advice: capped tier with results at the top of the range */
+  const capT = CAPS[c.cur+"|"+c.opt];
+  if(ov && !ov.pred && capT && capT.top && ov.lab===capT.top && ov.pct!=null && ov.pct>=80 && !short)
+    out.push(`Results at this level suggest ${map.N} could be ready for the ${c.opt==="Core"?"Extended":"Higher"} tier.`);
+  /* target grade (British, DP, Indian, local) */
+  if(!myp && st.target && ov && !short){
+    const sc = scaleOf(c), cur = sc.g.findIndex(x=>x[0]===ov.lab), tg = sc.g.findIndex(x=>x[0]===st.target);
+    if(cur>=0 && tg>=0){
+      const T = st.target;
+      out.push(cur<tg ? pick([`This is above ${map.Ns} target grade of ${T}, which is excellent.`,`${map.N} is currently working above the target grade of ${T}.`], seed("tg"))
+             : cur===tg ? pick([`${map.N} is on track to meet the target grade of ${T}.`,`This is in line with ${map.Ns} target grade of ${T}.`], seed("tg"))
+             : pick([`${map.N} is currently working below the target grade of ${T}, and closing this gap is the main priority.`,`Reaching the target grade of ${T} is within reach with focused effort.`], seed("tg")));
+    }
+  }
+  /* IB internal assessment criteria */
+  const sd = sdef(c);
+  if(!myp && sd && sd.ia && long){
+    const crit = sd.ia, have = crit.map((x,i)=>({x,i,v:st.ia[i]})).filter(o=>o.v!=null && o.v!=="");
+    if(have.length>=2){
+      const best = have.reduce((a,b)=>b.v/b.x[1]>a.v/a.x[1]?b:a), worst = have.reduce((a,b)=>b.v/b.x[1]<a.v/a.x[1]?b:a);
+      if(best.i!==worst.i) out.push(`In the ${sd.iaCode==="IO"?"individual oral":"internal assessment"}, ${map.N} showed ${best.x[2]}, and should now focus on ${worst.x[3]}.`);
+    }
   }
   const hasLA = lpA || atl;
   if(!short && st.str.length && (long || !hasLA)) out.push(pick(STR, seed("str")));
   if(!short && hasLA){
     if(lpA && atl) out.push(pick(LPATL.both, seed("lp")));
     else if(lpA) out.push(pick(LPATL.lp, seed("lp")));
-    else out.push(pick(LPATL.atl, seed("lp")));
+    else out.push(pick(ib ? LPATL.atl : LSK, seed("lp")));
   }
-  if(long && (c.kc.length || c.gc)){
+  if(long && myp && (c.kc.length || c.gc)){
     const intro = c.unit.trim() ? "The unit" : "This term’s learning";
     const kcs = c.kc.length ? "the key concept"+(c.kc.length>1?"s":"")+" of "+andList(c.kc.map(lowerFirst)) : "";
-    const gc = c.gc ? lowerFirst(c.gc) : "";
-    let t = kcs && gc ? `${intro} explored ${kcs} through the global context of ${gc}` : kcs ? `${intro} explored ${kcs}` : `${intro} was framed by the global context of ${gc}`;
+    const gcx = c.gc ? lowerFirst(c.gc) : "";
+    let t = kcs && gcx ? `${intro} explored ${kcs} through the global context of ${gcx}` : kcs ? `${intro} explored ${kcs}` : `${intro} was framed by the global context of ${gcx}`;
     const rcs = relatedConcepts(c).slice(0,3).map(lowerFirst);
     if(rcs.length) t += `, including the related concept${rcs.length>1?"s":""} of ${andList(rcs)}`;
     t += ", and the student " + (g>=6 ? "showed a deep understanding of these ideas." : g>=4 ? "developed a sound understanding of these ideas." : "is building an understanding of these ideas.");
@@ -696,26 +1179,46 @@ function templateComment(c, st){
   }
   if(st.att!=null && (st.att>=2 || long)) out.push(ATT[st.att]);
   if(st.ai!=null && (st.ai===2 || (long && st.ai===0))) out.push(AIN[st.ai]);
+  /* CBSE co-scholastic */
+  const co = cosch(c);
+  if(co && long){
+    const parts = co.map((a,i)=>st.co[i] ? `${COSCH_WORD[st.co[i]]} work in ${lowerFirst(a)} (grade ${st.co[i]})` : "").filter(Boolean);
+    if(parts.length) out.push(`In co-scholastic areas, ${map.N} has shown ${andList(parts.slice(0,3))}.`);
+  }
   let devDone = false;
   if(weak){
     if(st.eff>=2){ out.push(pick(DEV.effort, seed("dev"))); }
-    else if(weak.m>=7){ out.push(pick(DEV.top, seed("dev"))); devDone = true; }
+    else if(weak.m>=0.875){ out.push(pick(DEV.top, seed("dev"))); devDone = true; }
     else { out.push(pick(DEV.normal, seed("dev"))); devDone = true; }
   } else if(atlD){ out.push(DEV.nomarks[0]); devDone = true; }
   if(!devDone && map.lpg) out.push(DEV.lpgOnly[0]);
-  return clean(out.map(fill).join(" "));
+  const txt = clean(out.map(fill).join(" "));
+  return fam==="us" ? toUS(txt) : txt;
 }
+const US_SP = [["behaviour","behavior"],["organisation","organization"],["organising","organizing"],["analysing","analyzing"],["recognise","recognize"],["practise","practice"],["colour","color"],["favourite","favorite"],["centre","center"],["programme","program"],["maths","math"],["judgement","judgment"],["enrol","enroll"]];
+function toUS(t){ US_SP.forEach(([a,b])=>{ t = t.replace(new RegExp(a,"g"), b).replace(new RegExp(a[0].toUpperCase()+a.slice(1),"g"), b[0].toUpperCase()+b.slice(1)); }); return t; }
 
 /* ---------- AI writer ---------- */
 function brief(c, st){
-  const sj = subj(c), L = letters(sj.crit.length);
-  const g = grade(st), t = total(st), max = sj.crit.length*8;
+  const K = comps(c), myp = isMyp(c), ov = overall(c, st), sd = sdef(c);
   const opt = k => st[k]==null ? "not set" : LEVELS[k][st[k]];
+  const markLine = myp
+    ? "Criteria (each out of 8): "+K.map((k,i)=>{ const m = st.marks[i]==null ? null : (native(c) ? st.marks[i] : Math.round(st.marks[i]*8/100)); return "Criterion "+k.code+" "+k.n+" "+(m==null?"not assessed":m+"/8 ("+band(m)+")"); }).join("; ")
+    : "Assessment components: "+K.map((k,i)=>k.n+" ("+k.w+"% weighting) "+(st.marks[i]==null?"not yet assessed":markLabel(c, i, st.marks[i])+(c.entry==="raw"?" ("+Math.round(toPct(c,i,st.marks[i]))+"%)":""))).join("; ");
+  const resLine = myp
+    ? "Final MYP grade: "+(ov==null?"not available, do not mention a grade":ov.g+" (total "+ov.tot+")")
+    : "Overall result: "+(ov==null?"not available, do not mention a grade":resultPhrase(c, ov)+(ov.partial&&!ov.pred?", based on "+ov.done+" of "+ov.of+" components completed so far":""));
+  const extra = [];
+  if(!myp && st.target) extra.push("Target grade: "+st.target);
+  if(!myp && sd && sd.ia && st.ia.some(v=>v!=null && v!=="")) extra.push(sd.iaName+": "+sd.ia.map((x,i)=>x[0]+" "+(st.ia[i]==null||st.ia[i]===""?"not marked":st.ia[i]+"/"+x[1])).join("; "));
+  const co = cosch(c);
+  if(co && Object.keys(st.co).length) extra.push("Co-scholastic grades (A to E): "+co.map((a,i)=>a+" "+(st.co[i]||"not set")).join("; "));
   return [
     "ID: "+st.id,
     "First name: "+st.first,
-    "Criteria (each out of 8): "+sj.crit.map((cr,i)=>"Criterion "+L[i]+" "+cr[0]+" "+(st.marks[i]==null?"not assessed":st.marks[i]+"/8 ("+band(st.marks[i])+")")).join("; "),
-    "Final MYP grade: "+(g==null?"not available, do not mention a grade":g+" (total "+t+"/"+max+")"),
+    markLine,
+    resLine,
+    ...extra,
     "Progress since last term: "+opt("prog"),
     "Engagement: "+LEVELS.eng[st.eng],
     "Behaviour: "+LEVELS.beh[st.beh],
@@ -724,10 +1227,10 @@ function brief(c, st){
     "Attendance and punctuality: "+opt("att"),
     "Academic integrity: "+opt("ai"),
     "Specific strengths: "+(st.str.length?st.str.join(", "):"none given"),
-    "Learner profile attributes shown strongly: "+(st.lpS.length?st.lpS.join(", "):"none given"),
-    "Learner profile attribute to grow: "+(st.lpG||"none given"),
-    "ATL skill strength: "+(st.atlS?ATL_MAP[st.atlS].cat+" ("+ATL_MAP[st.atlS].cl+"): "+ATL_MAP[st.atlS].label:"none given"),
-    "ATL skill to develop: "+(st.atlD?ATL_MAP[st.atlD].cat+" ("+ATL_MAP[st.atlD].cl+"): "+ATL_MAP[st.atlD].label:"none given"),
+    ...(isIB(c) ? ["Learner profile attributes shown strongly: "+(st.lpS.length?st.lpS.join(", "):"none given"),
+    "Learner profile attribute to grow: "+(st.lpG||"none given")] : []),
+    (isIB(c)?"ATL skill strength: ":"Learning skill strength: ")+(st.atlS?ATL_MAP[st.atlS].cat+" ("+ATL_MAP[st.atlS].cl+"): "+ATL_MAP[st.atlS].label:"none given"),
+    (isIB(c)?"ATL skill to develop: ":"Learning skill to develop: ")+(st.atlD?ATL_MAP[st.atlD].cat+" ("+ATL_MAP[st.atlD].cl+"): "+ATL_MAP[st.atlD].label:"none given"),
     "Teacher note: "+(st.note.trim()||"none")
   ].join("\n");
 }
@@ -737,21 +1240,24 @@ const LENGTH_RULE = {
   long:"6 to 8 sentences, 110 to 150 words"
 };
 function rules(c){
-  const sj = subj(c), rcs = relatedConcepts(c);
+  const myp = isMyp(c), rcs = myp ? relatedConcepts(c) : [];
   const unit = [
-    c.unit.trim() ? "Unit studied: "+c.unit.trim()+"." : "",
-    c.gc ? "Global context: "+c.gc+"." : "",
-    c.kc.length ? "Key concept(s): "+c.kc.join(", ")+"." : "",
+    c.unit.trim() ? (myp?"Unit studied: ":"Topic studied: ")+c.unit.trim()+"." : "",
+    myp && c.gc ? "Global context: "+c.gc+"." : "",
+    myp && c.kc.length ? "Key concept(s): "+c.kc.join(", ")+"." : "",
     rcs.length ? "Related concept(s): "+rcs.join(", ")+"." : ""
   ].filter(Boolean).join(" ");
-  return "You write end-of-term MYP school report comments for parents.\n"+
-  "Course: "+(c.course||sj.name)+" (MYP subject group: "+sj.name+"). Class: "+c.label+". Reporting period: "+state.settings.term+".\n"+
+  const curLine = "Curriculum: "+curOf(c).name+", "+levelName(c)+(c.opt?", "+c.opt:"")+". Grading: "+scaleSummary(c)+"."+(myp?"":" Assessment structure: "+compSummary(c)+".");
+  const us = famOf(c)==="us";
+  return "You write end-of-term school report comments for parents.\n"+
+  "Course: "+(c.course||plainSubj(c))+" ("+subjName(c)+"). Class: "+c.label+". Reporting period: "+state.settings.term+".\n"+curLine+"\n"+
   (unit ? unit+"\n" : "")+
   "\nRules for every comment:\n"+
   "- Written for parents. Never use pronouns such as he, she, him, her, his, hers, they, them or their. Refer to the student by first name, or as 'the student' where the name would repeat too often, and shape sentences so neither is overused.\n"+
-  "- Length: "+LENGTH_RULE[state.settings.length||"medium"]+", one paragraph. Warm, professional, natural British English, like an experienced MYP teacher wrote it.\n"+
-  "- Mention the final MYP grade if one is given, the strongest criterion by its name, and one specific area to develop based on the weakest criterion, phrased as practical advice for this subject.\n"+
-  "- Use the unit, global context and concepts naturally if given (only in longer comments if space is short). Use MYP language for learner profile attributes and ATL skills.\n"+
+  "- Length: "+LENGTH_RULE[state.settings.length||"medium"]+", one paragraph. Warm, professional, natural "+(us?"American":"British")+" English, like an experienced teacher of this curriculum wrote it.\n"+
+  (myp ? "- Mention the final MYP grade if one is given, the strongest criterion by its name, and one specific area to develop based on the weakest criterion, phrased as practical advice for this subject.\n"
+       : "- Mention the overall result if one is given, using the grade exactly as written. Name the strongest assessment component and give one practical next step for the weakest component, referring to it by its real name (for example the paper, unit or category). If a target grade is given, say whether the student is above, on or below target. If results are based on only some components, say so.\n")+
+  "- Use "+(TERMS[c.cur]||TERMS.custom)+". "+(myp?"Use the unit, global context and concepts naturally if given (only in longer comments if space is short).":(isIB(c)?"Use the topic naturally if given.":"Use the topic naturally if given. Do not use IB-specific terms such as learner profile, global contexts or MYP criteria."))+"\n"+
   "- Weave in progress, engagement, behaviour, homework, effort, attendance, academic integrity and specific strengths where they are set. Always mention any concern. Skip details marked 'not set' or 'none given'. Use the teacher note if there is one.\n"+
   "- Be honest but encouraging. Do not invent achievements, topics or details that are not given.\n"+
   "- Do not use em dashes, en dashes, semicolons, bullet points, headings, quotation marks or emojis. Avoid clichés such as 'a pleasure to teach'.\n"+
@@ -766,21 +1272,51 @@ function renderRail(){
   }).join("");
 }
 function renderHead(){
-  const c = cls(), sj = subj(c), L = letters(sj.crit.length);
+  const c = cls(), K = comps(c), myp = isMyp(c), fam = famOf(c), op = optsOf(c), sc = scaleOf(c);
+  document.documentElement.dataset.fam = fam;
   $("clsTitle").textContent = c.label;
+  $("famBadge").textContent = FAM[fam] + (curOf(c).board ? ", "+curOf(c).board : "");
   $("course").value = c.course;
+  $("curSel").value = c.cur;
+  $("levelSel").innerHTML = curOf(c).levels.map(([n],i)=>`<option value="${i}">${esc(n)}</option>`).join("");
+  $("levelSel").value = String(c.level);
+  const keys = myp ? Object.keys(SUBJECTS) : curOf(c).subjects;
+  $("subject").innerHTML = keys.map(k=>`<option value="${k}">${esc(subjName(c,k))}</option>`).join("");
   $("subject").value = c.subject;
-  $("critKey").innerHTML = sj.crit.map((cr,i)=>`<b>${L[i]}</b> ${esc(cr[0])}`).join("&ensp; ") + `&ensp; Each criterion is marked out of 8.`;
-  document.documentElement.style.setProperty("--critcols", `repeat(${sj.crit.length}, 56px)`);
-  $("rhead").innerHTML = `<span>Student</span>${L.map((l,i)=>`<span title="${esc(sj.crit[i][0])}">${l}</span>`).join("")}<span>Total</span><span>Grade</span><span></span>`;
+  $("optWrap").hidden = !op;
+  if(op){ $("optLabel").textContent = c.cur==="dp" ? "Level" : "Tier"; $("optSel").innerHTML = op.map(o=>`<option>${o}</option>`).join(""); $("optSel").value = c.opt; }
+  $("entRaw").hidden = myp;
+  $("entNative").textContent = myp ? "Criteria 0 to 8" : (/grade|level|percent|standards|scale/i.test(sc.name) ? cap(sc.name) : "Grades "+sc.name);
+  $("entRaw").textContent = fam==="us" ? "Points" : "Raw marks";
+  $("entPct").textContent = myp ? "Marks out of 100" : "Percentages";
+  [["entNative","native"],["entPct","pct"],["entRaw","raw"]].forEach(([id,v])=>$(id).setAttribute("aria-pressed", c.entry===v));
+  $("equivLine").textContent = equivText(c);
+  const how = myp ? (native(c) ? "Each criterion is marked out of 8." : "Enter each criterion as a mark out of 100. It is converted to the 0 to 8 scale.")
+    : c.entry==="raw" ? `Enter the raw mark for each ${FAM_WORDS[fam].row}. The weighted overall grade is worked out from the ${FAM_WORDS[fam].row}s completed so far.`
+    : c.entry==="pct" ? `Enter a percentage for each ${FAM_WORDS[fam].row}. The overall grade uses the ${fam==="us"?"category weights":"weightings"} shown.`
+    : `Choose a level for each ${FAM_WORDS[fam].row}. The overall level is worked out for you.`;
+  const showW = !myp && Math.abs(K.reduce((a,k)=>a+(+k.w||0),0)-100)<1;
+  $("critKey").innerHTML = K.map(k=>`<b>${esc(k.code)}</b> ${esc(k.n)}${myp?"":` <span class="w">${[c.entry==="raw"?"/"+k.max:"", showW?k.w+"%":""].filter(Boolean).join(", ")}</span>`}`).join("&ensp; ") + `<br>${how}` + (myp||native(c) ? "" : " An asterisk means the grade is based on the work completed so far.");
+  $("unitBtn").textContent = myp ? "Unit and concepts" : "Topic studied";
+  $("boundsBtn").hidden = myp; $("compsBtn").hidden = myp;
+  $("compsBtn").textContent = myp ? "" : FAM_WORDS[fam].comps;
+  $("rosterHint").textContent = isIB(c) ? "Click a student’s name to set engagement, behaviour, homework, effort, learner profile attributes and ATL skills." + (sdef(c)&&sdef(c).ia ? " Internal assessment criteria and predicted grades are there too." : "")
+    : fam==="in" ? "Click a student’s name to set engagement, behaviour, homework, effort, co-scholastic grades, target grade and learning skills."
+    : fam==="us" ? "Click a student’s name to set engagement, behavior, homework, effort, strengths and learning skills."
+    : "Click a student’s name to set engagement, behaviour, homework, effort, target and predicted grades, strengths and learning skills.";
+  const w = (!myp && native(c)) ? "84px" : (c.entry==="raw" ? "66px" : "60px");
+  document.documentElement.style.setProperty("--critcols", `repeat(${K.length}, ${w})`);
+  $("rhead").innerHTML = `<span>Student</span>${K.map(k=>`<span title="${esc(k.n)}${myp?"":", "+k.w+"%"}">${esc(k.code)}${c.entry==="raw"&&!myp?`<small>/${k.max}</small>`:""}</span>`).join("")}<span>${myp?"Total":(native(c)?"":"Weighted")}</span><span>${myp?"Grade":"Overall"}</span><span></span>`;
 }
 function rowInner(c, st){
-  const sj = subj(c), g = grade(st), t = total(st), max = sj.crit.length*8, open = state.open===st.id;
+  const K = comps(c), ov = overall(c, st), open = state.open===st.id, sc = scaleOf(c), sel = !isMyp(c) && native(c);
   return `<div class="row">
     <button class="name-btn" type="button" data-act="toggle" aria-expanded="${open}"><span class="nm">${esc(st.name)}</span><span class="sub">${open?"Hide options":"Set options"}</span></button>
-    ${st.marks.map((m,i)=>`<input class="mk" type="number" min="0" max="8" inputmode="numeric" data-k="mark" data-i="${i}" value="${m==null?"":m}" aria-label="${esc(st.name)} criterion ${letters(sj.crit.length)[i]}">`).join("")}
-    <span class="tot" data-role="tot">${t==null?"":t+"/"+max}</span>
-    <span class="stamp ${g==null?"empty":""}" data-role="stamp" aria-label="Final grade ${g==null?"not available":g}">${g==null?"–":g}</span>
+    ${st.marks.slice(0,K.length).map((m,i)=> sel
+      ? `<select class="mk gsel" data-k="mark" data-i="${i}" aria-label="${esc(st.name)}, ${esc(K[i].n)}"><option value="">–</option>${sc.g.map((x,j)=>`<option value="${j}" ${m===j?"selected":""}>${esc(x[0])}</option>`).join("")}</select>`
+      : `<input class="mk" type="number" min="0" max="${maxOf(c,i)}" step="${c.entry==="raw"?"0.5":"1"}" inputmode="decimal" data-k="mark" data-i="${i}" value="${m==null?"":m}" aria-label="${esc(st.name)}, ${esc(K[i].n)}">`).join("")}
+    <span class="tot" data-role="tot">${ov?ov.tot+(ov.partial&&!ov.pred?"*":""):""}</span>
+    <span class="stamp ${ov==null?"empty":""} ${ov&&ov.lab.length>2?"long":""} ${ov&&ov.pred?"pred":""}" data-role="stamp" title="${ov&&ov.pred?"Predicted grade set by teacher":ov&&ov.partial?"Based on "+ov.done+" of "+ov.of+" components":""}" aria-label="Overall grade ${ov==null?"not available":esc(ov.lab)}">${ov==null?"–":esc(ov.lab)}</span>
     <span class="cstate ${st.comment.trim()?"done":""}" data-role="cstate">${st.comment.trim()?"Written":"No comment"}</span>
   </div>`;
 }
@@ -793,21 +1329,45 @@ function atlSelect(k, val, label){
   return `<label class="field">${label}<select data-k="${k}"><option value="">None</option>${ATL_TREE.map(([cat,clusters])=>`<optgroup label="${cat}">${clusters.map(([cl,skills])=>skills.map(([id,lab])=>`<option value="${id}" ${val===id?"selected":""}>${cl}: ${lab}</option>`).join("")).join("")}</optgroup>`).join("")}</select></label>`;
 }
 function detailHtml(c, st){
-  const aiOn = state.settings.mode==="ai", strs = STRENGTHS[c.subject] || STRENGTHS.sci;
+  const aiOn = state.settings.mode==="ai", strs = STRENGTHS[grpOf(c)] || STRENGTHS.sci, fam = famOf(c), myp = isMyp(c), sd = sdef(c), sc = scaleOf(c);
+  const gradeSel = (k, label, hint) => `<label class="field">${label}<select data-k="${k}"><option value="">${hint}</option>${sc.g.map(x=>`<option ${st[k]===x[0]?"selected":""}>${esc(x[0])}</option>`).join("")}</select></label>`;
+  let examBlock = "";
+  if(!myp && fam!=="us"){
+    examBlock = `<p class="group-h wide">${fam==="ib"?"Predicted grade":"Target and predicted grades"}</p>
+      ${fam!=="ib" ? gradeSel("target","Target grade","Not set") : ""}
+      ${gradeSel("pred", fam==="ib"?"Predicted grade (overrides the calculated grade)":"Predicted grade (overrides the calculated grade)","Use calculated grade")}`;
+  }
+  let iaBlock = "";
+  if(!myp && sd && sd.ia){
+    const t = st.ia.reduce((a,v)=>a+(+v||0),0), mx = sd.ia.reduce((a,x)=>a+x[1],0);
+    iaBlock = `<p class="group-h wide">${esc(sd.iaName)}</p>
+      <div class="wide ia-grid">${sd.ia.map((x,i)=>`<label class="field">${esc(x[0])}<span class="iain"><input type="number" min="0" max="${x[1]}" data-k="ia" data-i="${i}" value="${st.ia[i]??""}"> / ${x[1]}</span></label>`).join("")}</div>
+      <p class="wide msg" data-role="iatot">Total ${t} / ${mx}</p>
+      <p class="wide hint" style="margin:-6px 0 0">The total is copied into the ${sd.iaCode==="IO"?"individual oral":"internal assessment"} column automatically.</p>`;
+  }
+  let coBlock = "";
+  const co = cosch(c);
+  if(co){
+    coBlock = `<p class="group-h wide">Co-scholastic areas</p>
+      ${co.map((a,i)=>`<label class="field">${esc(a)}<select data-k="co" data-i="${i}"><option value="">Not set</option>${COSCH_SCALE.map(g=>`<option ${st.co[i]===g?"selected":""}>${g}</option>`).join("")}</select></label>`).join("")}`;
+  }
   return `<div class="detail">
     <div class="opts">
       <label class="field wide">Name used in comment<input type="text" data-k="first" value="${esc(st.first)}"></label>
-      <p class="group-h wide">Learning and conduct</p>
+      ${examBlock}
+      ${iaBlock}
+      <p class="group-h wide">${fam==="us"?"Work habits and conduct":"Learning and conduct"}</p>
       ${["eng","beh","hw","eff"].map(k=>segHtml(k, st[k], "lvl")).join("")}
       <p class="group-h wide">Progress, attendance and integrity</p>
       ${OPTIONAL.map(k=>segHtml(k, st[k], "lvl")).join("")}
+      ${coBlock}
       <p class="group-h wide">Strengths</p>
       <div class="wide"><span class="legend">Specific strengths, pick up to 2</span><div class="chips">${strs.map(n=>`<button type="button" class="chip" data-act="str" data-v="${esc(n)}" aria-pressed="${st.str.includes(n)}">${esc(cap(n))}</button>`).join("")}</div></div>
-      <p class="group-h wide">IB learner profile</p>
+      ${isIB(c) ? `<p class="group-h wide">IB learner profile</p>
       <div class="wide"><span class="legend">Shown strongly, pick up to 2</span><div class="chips">${LP.map(([n])=>`<button type="button" class="chip" data-act="lps" data-v="${n}" aria-pressed="${st.lpS.includes(n)}">${n}</button>`).join("")}</div></div>
-      <div class="wide"><span class="legend">One to grow towards</span><div class="chips">${LP.map(([n])=>`<button type="button" class="chip" data-act="lpg" data-v="${n}" aria-pressed="${st.lpG===n}">${n}</button>`).join("")}</div></div>
-      <p class="group-h wide">Approaches to learning (ATL)</p>
-      ${atlSelect("atlS", st.atlS, "ATL skill strength")}${atlSelect("atlD", st.atlD, "ATL skill to develop")}
+      <div class="wide"><span class="legend">One to grow towards</span><div class="chips">${LP.map(([n])=>`<button type="button" class="chip" data-act="lpg" data-v="${n}" aria-pressed="${st.lpG===n}">${n}</button>`).join("")}</div></div>` : ""}
+      <p class="group-h wide">${isIB(c) ? "Approaches to learning (ATL)" : "Learning skills"}</p>
+      ${atlSelect("atlS", st.atlS, isIB(c)?"ATL skill strength":"Skill strength")}${atlSelect("atlD", st.atlD, isIB(c)?"ATL skill to develop":"Skill to develop")}
       <label class="field wide">Teacher note ${aiOn?"(optional)":"(used in AI mode only)"}<textarea data-k="note" placeholder="e.g. strong practical report on pendulums">${esc(st.note)}</textarea></label>
       <div class="wide"><button class="btn small danger" type="button" data-act="remove">Remove student</button></div>
     </div>
@@ -843,13 +1403,15 @@ function renderAll(){
 }
 function refreshRow(st){
   const li = document.querySelector(`.st[data-id="${st.id}"]`); if(!li) return;
-  const c = cls(), sj = subj(c), g = grade(st), t = total(st);
-  li.querySelector('[data-role="tot"]').textContent = t==null?"":t+"/"+(sj.crit.length*8);
+  const c = cls(), ov = overall(c, st);
+  li.querySelector('[data-role="tot"]').textContent = ov ? ov.tot+(ov.partial&&!ov.pred?"*":"") : "";
   const sp = li.querySelector('[data-role="stamp"]');
-  sp.textContent = g==null?"–":g; sp.classList.toggle("empty", g==null);
+  sp.textContent = ov==null?"–":ov.lab; sp.classList.toggle("empty", ov==null); sp.classList.toggle("long", !!ov && ov.lab.length>2); sp.classList.toggle("pred", !!ov && !!ov.pred);
+  sp.title = ov&&ov.pred ? "Predicted grade set by teacher" : ov&&ov.partial ? "Based on "+ov.done+" of "+ov.of+" components" : "";
   const cs = li.querySelector('[data-role="cstate"]');
   cs.textContent = st.comment.trim()?"Written":"No comment"; cs.classList.toggle("done", !!st.comment.trim());
   const wc = li.querySelector('[data-role="wc"]'); if(wc) wc.textContent = words(st.comment)+" words";
+  const ia = li.querySelector('[data-role="iatot"]'); if(ia){ const sd = sdef(c); const t = st.ia.reduce((a,v)=>a+(+v||0),0); ia.textContent = `Total ${t} / ${sd.ia.reduce((a,x)=>a+x[1],0)}`; }
 }
 
 /* ---------- Persistence ---------- */
@@ -887,6 +1449,7 @@ function loadLocal(){
     if(!state.classes[state.current]) state.current = state.order[0] || null;
   }catch(e){}
 }
+window.addEventListener("pagehide", ()=>{ Object.keys(timers).forEach(k=>{ clearTimeout(timers[k]); persist(k); }); });
 function saveEverything(){ persist("settings"); state.order.forEach(persist); }
 
 /* ---------- Paste marks ---------- */
@@ -899,8 +1462,9 @@ function findStudent(c, name){
   return hit || null;
 }
 const LETTER = /[A-Za-z\u00C0-\u024F\u0400-\u04FF]/;
-const MARKS_TAIL = /^(.*?)(?:^|[\s,;\t]+)((?:(?:\d{1,2}(?:\.\d+)?|-|n\/?a)(?:[\s,;\t]+|$))+)$/i;
-function parseLine(raw, n){
+const MARKS_TAIL = /^(.*?)(?:^|[\s,;\t]+)((?:(?:\d{1,3}(?:\.\d+)?|-|n\/?a)(?:[\s,;\t]+|$))+)$/i;
+function parseLine(raw, n, max){
+  max = max || 8;
   let line = String(raw).replace(/\u00a0/g," ").replace(/\s+$/,"").trim();
   if(!line) return null;
   line = line.replace(/^(?:\(?\d{1,3}\s*[.)\]:\-]\s*|\d{1,3}\t+|\d{1,3}\s+(?=\D)|[-–•*·▪●○]\s*)/,"");
@@ -908,17 +1472,18 @@ function parseLine(raw, n){
   const m = line.match(MARKS_TAIL);
   if(m){
     name = m[1];
-    nums = m[2].trim().split(/[\s,;\t]+/).slice(0,n).map(x=>{const v = parseFloat(x); return isNaN(v)||v<0||v>8 ? null : Math.round(v);});
+    nums = m[2].trim().split(/[\s,;\t]+/).slice(0,n).map(x=>{const v = parseFloat(x); return isNaN(v)||v<0||v>max ? null : Math.round(v);});
   }
   name = name.replace(/[,;\t|]+/g," ").replace(/\s+/g," ").trim();
   if(name && (!LETTER.test(name) || /\d/.test(name) || /^(no\.?|#|sr\.?|s\.?no|name|names|student|students|full name|grade|class|list)\b/i.test(name))) return {skip:true};
   return {name, nums};
 }
 function importLines(text){
-  const c = cls(), n = subj(c).crit.length;
+  const c = cls(), K = comps(c), n = K.length, gradeMode = !isMyp(c) && native(c);
   let added = 0, dup = 0, marked = 0, order = 0; const bad = [];
   for(const raw of String(text).split(/\r?\n/)){
-    const p = parseLine(raw, n); if(!p || p.skip) continue;
+    const p = parseLine(raw, n, 1000); if(!p || p.skip) continue;
+    p.nums = p.nums.map((v,i)=>{ if(v==null) return null; if(gradeMode) return gradeFromPct(scaleOf(c), v); return v>maxOf(c,i) ? null : v; });
     let st = null;
     if(!p.name){ st = c.students[order++]; if(!st){ bad.push(raw); continue; } }
     else {
@@ -951,7 +1516,7 @@ function openAdd(){
 }
 function addOne(){
   const v = $("oneName").value.trim(); if(!v) return;
-  const p = parseLine(v, subj(cls()).crit.length), msg = $("oneMsg");
+  const p = parseLine(v, crits(cls()).length, 100), msg = $("oneMsg");
   if(!p || p.skip || !p.name){ msg.className = "msg err"; msg.textContent = "Type a name with letters only."; return; }
   const r = importLines(v);
   msg.className = "msg " + (r.added ? "good" : "err");
@@ -1031,20 +1596,69 @@ function ask(title, value){
 /* ---------- Events ---------- */
 $("classList").addEventListener("click", e=>{
   const b = e.target.closest("[data-cls]"); if(!b) return;
-  state.current = b.dataset.cls; state.open = (state.classes[state.current].students[0]||{}).id || null; $("pastePanel").hidden = true; $("aiPanel").hidden = true; $("addPanel").hidden = true; $("unitPanel").hidden = true; $("defaultsPanel").hidden = true; hideBar();
+  state.current = b.dataset.cls; state.open = (state.classes[state.current].students[0]||{}).id || null; $("pastePanel").hidden = true; $("boundsPanel").hidden = true; $("compsPanel").hidden = true; $("aiPanel").hidden = true; $("addPanel").hidden = true; $("unitPanel").hidden = true; $("defaultsPanel").hidden = true; hideBar();
   if(!state.classes[state.current].students.length) setTimeout(openAdd, 0);
   renderAll(); scheduleSave("settings");
 });
 $("term").addEventListener("input", e=>{ state.settings.term = e.target.value; scheduleSave("settings"); });
 $("modeAi").addEventListener("click", ()=>{ state.settings.mode = "ai"; renderMode(); renderRoster(); scheduleSave("settings"); });
 $("modeTpl").addEventListener("click", ()=>{ state.settings.mode = "template"; renderMode(); renderRoster(); scheduleSave("settings"); });
-$("subject").innerHTML = Object.entries(SUBJECTS).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join("");
+$("curSel").innerHTML = [...new Set(Object.values(CURRICULA).map(x=>x.grp))].map(g=>`<optgroup label="${g}">${Object.entries(CURRICULA).filter(([,v])=>v.grp===g).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join("")}</optgroup>`).join("");
+const snapshotPct = c => c.students.map(s=>s.marks.map((m,i)=>toPct(c, i, m)));
+function reshapeMarks(c, oldPct, sameShape){
+  const n = comps(c).length;
+  let kept = false;
+  c.students.forEach((s,si)=>{
+    const p = sameShape ? oldPct[si].slice(0,n) : Array(n).fill(null);
+    while(p.length<n) p.push(null);
+    if(!sameShape && oldPct[si].some(v=>v!=null)) kept = true;
+    s.marks = p.map((v,i)=>fromPct(c, i, v));
+  });
+  return kept;
+}
+function structureKey(c){ return comps(c).map(k=>k.code+":"+k.n).join("|"); }
+function afterStructureChange(c, snap, oldKey, msg){
+  const same = structureKey(c)===oldKey || (isMyp(c) && snap.every(r=>r.length===comps(c).length));
+  const lost = reshapeMarks(c, snap, same);
+  renderHead(); renderRoster(); if(!$("unitPanel").hidden) renderUnit(); if(!$("boundsPanel").hidden) renderBounds(); if(!$("compsPanel").hidden) renderComps();
+  if(lost) setSaved("The assessment structure changed, so marks were cleared. Load a backup to undo.");
+  scheduleSave(c.id);
+}
+$("curSel").addEventListener("change", e=>{
+  const c = cls();
+  if(c.students.some(s=>s.marks.some(m=>m!=null)) && !confirm("Changing the curriculum changes the assessment structure, so existing marks may be cleared. Comments and student options are kept. Continue?")){ e.target.value = c.cur; return; }
+  const snap = snapshotPct(c), oldKey = structureKey(c), wasIB = isIB(c), oldStage = stageIdx(c), oldGrp = grpOf(c);
+  c.cur = e.target.value; c.comps = null;
+  const cu = curOf(c), lv = cu.levels; let best = 0; lv.forEach(([,st],i)=>{ if(Math.abs(st-oldStage)<Math.abs(lv[best][1]-oldStage)) best = i; }); c.level = best;
+  if(isMyp(c)) c.subject = SUBJECTS[oldGrp] ? oldGrp : "sci";
+  else c.subject = cu.subjects.find(k=>SUBJ[k].grp===oldGrp) || cu.subjects[0];
+  c.entry = cu.entry; const op = optsOf(c); c.opt = op ? op[op.length-1] : "";
+  if(wasIB && !isIB(c)) c.students.forEach(st=>{ st.lpS = []; st.lpG = ""; });
+  c.students.forEach(st=>{ st.pred = ""; st.target = ""; st.ia = []; });
+  afterStructureChange(c, snap, oldKey);
+});
+$("levelSel").addEventListener("change", e=>{
+  const c = cls(), snap = snapshotPct(c), oldKey = structureKey(c); c.level = +e.target.value; c.comps = null; afterStructureChange(c, snap, oldKey);
+});
+$("optSel").addEventListener("change", e=>{
+  const c = cls(), snap = snapshotPct(c), oldKey = structureKey(c); c.opt = e.target.value; c.comps = null;
+  c.students.forEach(st=>{ if(st.pred && !scaleOf(c).g.some(x=>x[0]===st.pred)) st.pred = ""; if(st.target && !scaleOf(c).g.some(x=>x[0]===st.target)) st.target = ""; });
+  afterStructureChange(c, snap, oldKey);
+});
+function setEntry(v){
+  const c = cls(); if(c.entry===v) return;
+  const snap = snapshotPct(c); c.entry = v; reshapeMarks(c, snap, true);
+  renderHead(); renderRoster(); scheduleSave(c.id);
+}
+$("entNative").addEventListener("click", ()=>setEntry("native"));
+$("entPct").addEventListener("click", ()=>setEntry("pct"));
+$("entRaw").addEventListener("click", ()=>setEntry("raw"));
 $("subject").addEventListener("change", e=>{
-  const c = cls(); c.subject = e.target.value; const n = subj(c).crit.length;
-  c.students.forEach(s=>{ s.marks = s.marks.slice(0,n); while(s.marks.length<n) s.marks.push(null); });
+  const c = cls(), snap = snapshotPct(c), oldKey = structureKey(c); c.subject = e.target.value; c.comps = null;
+  const op = optsOf(c); c.opt = op ? (op.includes(c.opt) ? c.opt : op[op.length-1]) : "";
   c.rc = c.rc.filter(x=>(RC[c.subject]||[]).includes(x));
-  c.students.forEach(st=>{ st.str = st.str.filter(x=>(STRENGTHS[c.subject]||[]).includes(x)); });
-  renderHead(); renderRoster(); if(!$("unitPanel").hidden) renderUnit(); scheduleSave(c.id);
+  c.students.forEach(st=>{ st.str = st.str.filter(x=>(STRENGTHS[grpOf(c)]||[]).includes(x)); st.ia = []; });
+  afterStructureChange(c, snap, oldKey);
 });
 $("course").addEventListener("input", e=>{ cls().course = e.target.value; scheduleSave(cls().id); });
 $("pasteBtn").addEventListener("click", ()=>{ const p = $("pastePanel"); p.hidden = !p.hidden; $("addPanel").hidden = true; if(!p.hidden){ $("pasteMsg").textContent = ""; $("pasteBox").focus(); } });
@@ -1058,7 +1672,8 @@ $("addClassBtn").addEventListener("click", async ()=>{
   const name = await ask("New class name, e.g. Grade 8B"); if(!name) return;
   let id = name.replace(/^grade\s*/i,"").replace(/[^A-Za-z0-9]/g,"") || "C";
   while(state.classes[id]) id += "x";
-  state.classes[id] = normClass({id, label:name, subject:"sci", course:"Science", students:[]});
+  const prev = cls();
+  state.classes[id] = normClass({id, label:name, subject:"sci", course:"Science", cur:prev?prev.cur:"myp", entry:prev?prev.entry:"native", students:[]});
   state.order.push(id); state.current = id; state.open = null;
   renderAll(); persist(id); persist("settings");
   openAdd();
@@ -1143,9 +1758,21 @@ roster.addEventListener("click", e=>{
 roster.addEventListener("input", e=>{
   const el = e.target, k = el.dataset.k; if(!k) return;
   const li = el.closest(".st[data-id]"), c = cls(), st = c.students.find(s=>s.id===li.dataset.id); if(!st) return;
+  if(k==="ia"){
+    const sd = sdef(c), i = +el.dataset.i, raw = el.value.trim(), v = raw==="" ? null : Number(raw);
+    const bad = v!=null && (!Number.isFinite(v) || v<0 || v>sd.ia[i][1]); el.classList.toggle("bad", bad);
+    st.ia[i] = bad ? null : v;
+    const K = comps(c), idx = K.findIndex(x=>x.code===(sd.iaCode||"IA"));
+    if(idx>=0){
+      const filled = st.ia.filter(x=>x!=null && x!=="").length, tot = st.ia.reduce((a,x)=>a+(+x||0),0), mx = sd.ia.reduce((a,x)=>a+x[1],0);
+      st.marks[idx] = filled ? (c.entry==="raw" ? Math.round(tot/mx*K[idx].max*2)/2 : fromPct(c, idx, tot/mx*100)) : null;
+      const inp = li.querySelector(`[data-k="mark"][data-i="${idx}"]`); if(inp) inp.value = st.marks[idx]==null ? "" : st.marks[idx];
+    }
+    refreshRow(st); scheduleSave(c.id); return;
+  }
   if(k==="mark"){
-    const raw = el.value.trim(), v = raw==="" ? null : Number(raw);
-    const bad = v!=null && (!Number.isInteger(v) || v<0 || v>8);
+    const raw = el.value.trim(), v = raw==="" ? null : Number(raw), mx = el.tagName==="SELECT" ? 999 : maxOf(c, +el.dataset.i);
+    const bad = v!=null && (!Number.isFinite(v) || v<0 || v>mx || (c.entry!=="raw" && !Number.isInteger(v)));
     el.classList.toggle("bad", bad);
     st.marks[+el.dataset.i] = bad ? null : v;
   }
@@ -1156,7 +1783,8 @@ roster.addEventListener("input", e=>{
   refreshRow(st); scheduleSave(c.id);
 });
 roster.addEventListener("change", e=>{
-  const el = e.target, k = el.dataset.k; if(!k || el.tagName!=="SELECT") return;
+  const el = e.target, k = el.dataset.k; if(!k || el.tagName!=="SELECT" || k==="mark") return;
+  if(k==="co"){ const li0 = el.closest(".st[data-id]"), st0 = cls().students.find(s=>s.id===li0.dataset.id); if(el.value) st0.co[el.dataset.i] = el.value; else delete st0.co[el.dataset.i]; scheduleSave(cls().id); return; }
   const li = el.closest(".st[data-id]"), c = cls(), st = c.students.find(s=>s.id===li.dataset.id); if(!st) return;
   if(["eng","beh","hw","eff"].includes(k)) st[k] = +el.value;
   else st[k] = el.value;
@@ -1164,11 +1792,13 @@ roster.addEventListener("change", e=>{
 });
 
 /* ---------- Unit, class defaults, length, theme ---------- */
-const togglePanel = id => { const p = $(id); const show = p.hidden; ["unitPanel","defaultsPanel","addPanel","pastePanel","aiPanel"].forEach(x=>$(x).hidden = true); p.hidden = !show; return show; };
+const togglePanel = id => { const p = $(id); const show = p.hidden; ["unitPanel","defaultsPanel","addPanel","pastePanel","aiPanel","boundsPanel","compsPanel"].forEach(x=>$(x).hidden = true); p.hidden = !show; return show; };
 $("unitGc").innerHTML = `<option value="">Not set</option>` + GC.map(g=>`<option>${g}</option>`).join("");
 function renderUnit(){
   const c = cls(); if(!c) return;
   $("unitCls").textContent = c.label; $("unitName").value = c.unit; $("unitGc").value = c.gc; $("rcOther").value = c.rcOther;
+  document.querySelectorAll(".myp-only").forEach(x=>x.hidden = !isMyp(c));
+  $("unitIntro").textContent = isMyp(c) ? "Set these once for the class. They are used in AI comments and in long template comments." : "Add the topic or unit studied this term. It is used in comments and AI prompts.";
   $("kcChips").innerHTML = KC.map(k=>`<button type="button" class="chip" data-kind="kc" data-v="${k}" aria-pressed="${c.kc.includes(k)}">${k}</button>`).join("");
   const rcs = RC[c.subject] || [];
   $("rcChips").innerHTML = rcs.length ? rcs.map(k=>`<button type="button" class="chip" data-kind="rc" data-v="${k}" aria-pressed="${c.rc.includes(k)}">${k}</button>`).join("") : `<span class="msg">Type related concepts in the box below.</span>`;
@@ -1185,6 +1815,74 @@ $("rcOther").addEventListener("input", e=>{ cls().rcOther = e.target.value; sche
   $(id).querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed", c[key].includes(x.dataset.v)));
   scheduleSave(c.id);
 }));
+
+function renderBounds(){
+  const c = cls(); if(!c || isMyp(c)) return;
+  const sc = scaleOf(c), custom = sc.key==="custom";
+  $("boundsCls").textContent = curOf(c).name;
+  $("boundsGrid").innerHTML = sc.g.map((x,i)=>`<label class="field">${custom?`<input type="text" data-bl="${i}" value="${esc(x[0])}" aria-label="Grade label ${i+1}">`:`<b>${esc(x[0])}</b>`}<span class="bmin">${i===sc.g.length-1?`<span class="msg">below ${sc.g[i-1]?sc.g[i-1][1]:0}%</span>`:`from <input type="number" min="0" max="100" data-bm="${i}" value="${x[1]}" aria-label="Minimum percent for ${esc(x[0])}">%`}</span></label>`).join("");
+  $("boundsMsg").textContent = "";
+}
+function saveBounds(){
+  const c = cls(), sc = scaleOf(c), out = sc.g.map((x,i)=>({min:x[1], lab:x[0]}));
+  $("boundsGrid").querySelectorAll("[data-bm]").forEach(el=>{ const v = Number(el.value); if(el.value!=="" && v>=0 && v<=100) out[+el.dataset.bm].min = Math.round(v); });
+  $("boundsGrid").querySelectorAll("[data-bl]").forEach(el=>{ if(el.value.trim()) out[+el.dataset.bl].lab = el.value.trim().slice(0,12); });
+  out[out.length-1].min = 0;
+  for(let i=1;i<out.length;i++) if(out[i].min>=out[i-1].min){ $("boundsMsg").className = "msg err"; $("boundsMsg").textContent = "Each grade needs a lower minimum than the grade above it."; return; }
+  c.bounds[sc.key] = out; renderRoster(); scheduleSave(c.id);
+  $("boundsMsg").className = "msg good"; $("boundsMsg").textContent = "Boundaries saved for this class.";
+}
+$("boundsBtn").addEventListener("click", ()=>{ if(togglePanel("boundsPanel")) renderBounds(); });
+$("closeBounds").addEventListener("click", ()=>{ $("boundsPanel").hidden = true; });
+$("saveBounds").addEventListener("click", saveBounds);
+$("resetBounds").addEventListener("click", ()=>{ const c = cls(); delete c.bounds[curOf(c).scale]; renderBounds(); renderRoster(); scheduleSave(c.id); $("boundsMsg").className = "msg good"; $("boundsMsg").textContent = "Default boundaries restored."; });
+
+function renderComps(){
+  const c = cls(); if(!c || isMyp(c)) return;
+  const K = comps(c), fam = famOf(c);
+  $("compsTitle").textContent = FAM_WORDS[fam].comps+" for "+subjName(c)+(c.opt?" "+c.opt:"")+", "+levelName(c);
+  const official = ["dp","cie_ig","cie_ig9","edx_ig","cie_al","edx_al","cbse","icse"].includes(c.cur) && !/_other$|_g3$/.test(c.subject);
+  $("compsNote").textContent = c.comps ? "You have edited this structure. Restore the default structure at any time."
+    : official ? "This is the published assessment structure for this course. Check it against your current syllabus and edit it if your school uses different papers, marks or weightings."
+    : "This is a typical structure. Edit the names, maximum marks and weights to match your school.";
+  $("compsGrid").innerHTML = `<div class="cg-head"><span>Code</span><span>Name</span><span>Max mark</span><span>Weight %</span><span></span></div>` + K.map((k,i)=>`<div class="cg-row">
+    <input type="text" data-cf="code" data-i="${i}" value="${esc(k.code)}" aria-label="Code ${i+1}">
+    <input type="text" data-cf="n" data-i="${i}" value="${esc(k.n)}" aria-label="Name ${i+1}">
+    <input type="number" min="1" max="1000" data-cf="max" data-i="${i}" value="${k.max}" aria-label="Maximum mark ${i+1}">
+    <input type="number" min="0" max="100" step="0.1" data-cf="w" data-i="${i}" value="${k.w}" aria-label="Weight ${i+1}">
+    <button type="button" class="btn small danger" data-cdel="${i}" ${K.length<=1?"disabled":""}>Remove</button></div>`).join("");
+  const tw = Math.round(K.reduce((a,k)=>a+(+k.w||0),0)*10)/10;
+  $("compsMsg").className = "msg " + (Math.abs(tw-100)<0.6 ? "good" : "err"); $("compsMsg").textContent = `Weights add up to ${tw}%.`;
+}
+function readComps(){
+  const c = cls(), K = comps(c).map(k=>({code:k.code,n:k.n,max:k.max,w:k.w}));
+  $("compsGrid").querySelectorAll("[data-cf]").forEach(el=>{ const k = K[+el.dataset.i], f = el.dataset.cf; k[f] = (f==="max"||f==="w") ? Number(el.value) : el.value.trim(); });
+  return K;
+}
+$("compsBtn").addEventListener("click", ()=>{ if(togglePanel("compsPanel")) renderComps(); });
+$("closeComps").addEventListener("click", ()=>{ $("compsPanel").hidden = true; });
+$("compsGrid").addEventListener("input", ()=>{ const K = readComps(); const tw = Math.round(K.reduce((a,k)=>a+(+k.w||0),0)*10)/10; $("compsMsg").className = "msg " + (Math.abs(tw-100)<0.6 ? "good" : "err"); $("compsMsg").textContent = `Weights add up to ${tw}%.`; });
+$("compsGrid").addEventListener("click", e=>{
+  const b = e.target.closest("[data-cdel]"); if(!b) return;
+  const c = cls(), K = readComps(), i = +b.dataset.cdel; K.splice(i,1); c.comps = K;
+  c.students.forEach(st=>st.marks.splice(i,1)); renderComps(); renderHead(); renderRoster(); scheduleSave(c.id);
+});
+$("addComp").addEventListener("click", ()=>{
+  const c = cls(), K = readComps(); K.push({code:"C"+(K.length+1), n:"New assessment", max:100, w:0}); c.comps = K;
+  c.students.forEach(st=>st.marks.push(null)); renderComps(); renderHead(); renderRoster(); scheduleSave(c.id);
+});
+$("saveComps").addEventListener("click", ()=>{
+  const c = cls(), K = readComps();
+  if(K.some(k=>!k.n || !(k.max>0) || !(k.w>=0))){ $("compsMsg").className = "msg err"; $("compsMsg").textContent = "Each row needs a name, a maximum mark above 0 and a weight."; return; }
+  const old = comps(c);
+  c.students.forEach(st=>st.marks = st.marks.map((m,i)=> m==null || !old[i] ? m : (c.entry==="raw" ? Math.min(m, K[i].max) : m)));
+  c.comps = K; renderComps(); renderHead(); renderRoster(); scheduleSave(c.id);
+  $("compsMsg").className = "msg good"; $("compsMsg").textContent = "Saved for this class.";
+});
+$("resetComps").addEventListener("click", ()=>{
+  const c = cls(), snap = snapshotPct(c), oldKey = structureKey(c); c.comps = null; afterStructureChange(c, snap, oldKey);
+  $("compsMsg").className = "msg good"; $("compsMsg").textContent = "Default structure restored.";
+});
 
 const DEFAULT_KEYS = ["eng","beh","hw","eff","prog","att","ai"];
 $("defaultsGrid").innerHTML = DEFAULT_KEYS.map(k=>`<label class="field">${LEVEL_LABELS[k]}<select data-dk="${k}"><option value="keep">Don’t change</option>${OPTIONAL.includes(k)?`<option value="">Not set</option>`:""}${LEVELS[k].map((l,i)=>`<option value="${i}">${l}</option>`).join("")}</select></label>`).join("");
@@ -1245,8 +1943,9 @@ function exportRows(scope){
   const ids = scope==="all" ? state.order : [state.current];
   const rows = [];
   ids.forEach(id=>{
-    const c = state.classes[id], sj = subj(c), L = letters(sj.crit.length);
-    c.students.forEach(st=>rows.push({cls:c.label, course:c.course||sj.name, name:st.name, crit:L.map((l,i)=>[l, st.marks[i]]), grade:grade(st), comment:st.comment.trim()}));
+    const c = state.classes[id], K = comps(c);
+    c.students.forEach(st=>{ const ov = overall(c, st); rows.push({cls:c.label, course:c.course||plainSubj(c), subj:subjName(c)+(c.opt?" "+c.opt:""), cur:curOf(c).name, lvl:levelName(c), name:st.name,
+      crit:K.map((k,i)=>[k.code, st.marks[i]==null?null:markLabel(c, i, st.marks[i])]), grade:ov?ov.lab:null, avg:ov&&ov.pct!=null&&!ov.pred?ov.pct+"%":"", pred:st.pred||"", target:st.target||"", comment:st.comment.trim()}); });
   });
   return rows;
 }
@@ -1261,10 +1960,10 @@ $("exportBtn").addEventListener("click", ()=>{ $("expMsg").textContent = ""; $("
 $("expCsv").addEventListener("click", ()=>{
   const scope = $("expScope").value, rows = exportRows(scope);
   const q = v => '"' + String(v??"").replace(/"/g,'""') + '"';
-  const head = ["Class","Course","Student","A","B","C","D","Final grade","Comment","Teacher"];
+  const head = ["Class","Curriculum","Year or grade","Subject","Course","Student","Marks","Weighted average","Overall grade","Predicted grade","Target grade","Comment","Teacher"];
   const lines = [head.map(q).join(",")].concat(rows.map(r=>{
-    const m = ["A","B","C","D"].map(l=>{ const x = r.crit.find(c=>c[0]===l); return x && x[1]!=null ? x[1] : ""; });
-    return [r.cls, r.course, r.name, ...m, r.grade??"", r.comment, state.settings.teacher].map(q).join(",");
+    const m = r.crit.map(x=>x[0]+" "+(x[1]==null?"-":x[1])).join("; ");
+    return [r.cls, r.cur, r.lvl, r.subj, r.course, r.name, m, r.avg, r.grade??"", r.pred, r.target, r.comment, state.settings.teacher].map(q).join(",");
   }));
   download(fileBase(scope)+".csv", "\ufeff"+lines.join("\r\n"), "text/csv;charset=utf-8");
   $("expMsg").className = "msg good"; $("expMsg").textContent = `Exported ${rows.length} students. Open the file in Excel.`;
@@ -1277,9 +1976,9 @@ $("expDoc").addEventListener("click", ()=>{
   if(who) html += `<p>${esc(who)}</p>`;
   let last = "";
   rows.forEach(r=>{
-    if(r.cls!==last){ html += `<h2>${esc(r.cls)}, ${esc(r.course)}</h2>`; last = r.cls; }
+    if(r.cls!==last){ html += `<h2>${esc(r.cls)}, ${esc(r.course)} (${esc(r.cur)}, ${esc(r.subj)}, ${esc(r.lvl)})</h2>`; last = r.cls; }
     const marks = r.crit.map(c=>c[0]+" "+(c[1]==null?"-":c[1])).join(", ");
-    html += `<p class="n">${esc(r.name)} (${marks}${r.grade?", grade "+r.grade:""})</p><p class="c">${esc(r.comment||"No comment written yet.")}</p>`;
+    html += `<p class="n">${esc(r.name)} (${marks}${r.grade?", overall "+esc(r.grade):""})</p><p class="c">${esc(r.comment||"No comment written yet.")}</p>`;
   });
   html += `</body></html>`;
   download(fileBase(scope)+".doc", html, "application/msword");
@@ -1299,8 +1998,6 @@ $("lengthSel").value = state.settings.length;
 applyTheme();
 renderAll();
 if(firstRun) setTimeout(()=>openMe(true), 200);
-</script>
-<script>
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
 </script>
 </body>

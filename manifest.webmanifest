@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "MYP Report Writer",
+  "name": "TeachersHub Report Writer",
   "short_name": "Report Writer",
-  "description": "Write clear, personal MYP end-of-term report comments in minutes. Enter criteria marks, choose options for each student, and get comments for parents. Works offline.",
+  "description": "Write clear, personal end-of-term report comments in minutes. Enter marks for IB, Cambridge, Edexcel, US or Indian curricula, choose options for each student, and get comments for parents. Works offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
