@@ -4,11 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TeachersHub Report Writer</title>
-<meta name="description" content="Write clear, personal end-of-term report comments for IB, Cambridge, Edexcel, US and Indian curricula in minutes. Works offline.">
-<meta name="theme-color" content="#2F3E9E">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 @font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2");font-weight:400;}
 @font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2");font-weight:700;}
@@ -110,7 +105,7 @@ main{padding:22px clamp(16px,3vw,36px) 60px;min-width:0;}
 .btn.small{padding:5px 10px;font-size:.85rem;}
 .btn.danger{color:var(--warn);}
 .btn:disabled{opacity:.55;cursor:wait;}
-.setup-grid{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(140px,.8fr) minmax(220px,1.4fr) minmax(90px,.5fr) minmax(140px,.8fr);gap:12px 16px;margin:0 0 12px;}
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 16px;margin:0 0 12px;}
 .setup-grid .field select,.setup-grid .field input{width:100%;}
 @media (max-width:1000px){.setup-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:560px){.setup-grid{grid-template-columns:1fr;}}
@@ -211,6 +206,149 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
   .detail{grid-template-columns:1fr;}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+/* ===== v4: depth, motion and smoothness ===== */
+:root{
+  --r-sm:10px; --r-md:14px; --r-lg:18px;
+  --hi:rgba(255,255,255,.85); --lo:rgba(16,24,40,.06);
+  --sh-1:0 1px 1px rgba(16,24,40,.06),0 2px 4px rgba(16,24,40,.06);
+  --sh-2:0 1px 2px rgba(16,24,40,.07),0 4px 10px rgba(16,24,40,.08),0 12px 24px -12px rgba(16,24,40,.18);
+  --sh-3:0 2px 4px rgba(16,24,40,.08),0 10px 24px rgba(16,24,40,.12),0 28px 48px -20px rgba(16,24,40,.30);
+  --sh-in:inset 0 1px 2px rgba(16,24,40,.10),inset 0 0 0 1px rgba(16,24,40,.04);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --bg2:color-mix(in srgb, var(--accent) 7%, var(--bg));
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --hi:rgba(255,255,255,.07); --lo:rgba(0,0,0,.3);
+  --sh-1:0 1px 1px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.3);
+  --sh-2:0 1px 2px rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.35),0 14px 28px -14px rgba(0,0,0,.6);
+  --sh-3:0 2px 6px rgba(0,0,0,.45),0 14px 30px rgba(0,0,0,.45),0 30px 50px -20px rgba(0,0,0,.7);
+  --sh-in:inset 0 1px 3px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.03);
+}}
+:root[data-theme="dark"]{
+  --hi:rgba(255,255,255,.07); --lo:rgba(0,0,0,.3);
+  --sh-1:0 1px 1px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.3);
+  --sh-2:0 1px 2px rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.35),0 14px 28px -14px rgba(0,0,0,.6);
+  --sh-3:0 2px 6px rgba(0,0,0,.45),0 14px 30px rgba(0,0,0,.45),0 30px 50px -20px rgba(0,0,0,.7);
+  --sh-in:inset 0 1px 3px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.03);
+}
+html{scroll-behavior:smooth;}
+body{background:radial-gradient(1200px 600px at 85% -10%, var(--bg2), transparent 70%), radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--stamp) 6%, transparent), transparent 70%), var(--bg);background-attachment:fixed;}
+*{transition-timing-function:var(--ease);}
+
+.top{background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid color-mix(in srgb, var(--line) 70%, transparent);box-shadow:0 1px 0 var(--hi) inset, var(--sh-1);}
+.top h1{background:linear-gradient(135deg, var(--ink) 30%, var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.rail{background:transparent;border-right:1px solid color-mix(in srgb, var(--line) 60%, transparent);}
+.rail button{transition:background .2s, box-shadow .25s, transform .2s;}
+.rail button:hover{background:color-mix(in srgb, var(--surface) 70%, transparent);transform:translateX(2px);}
+.rail button[aria-current="true"]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent), var(--sh-2);transform:none;}
+.rail-sec{margin-top:18px;padding-top:12px;border-top:1px solid color-mix(in srgb, var(--line) 60%, transparent);}
+.rail .navcard{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--accent);}
+.navcard .ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg, color-mix(in srgb, var(--accent) 22%, var(--surface)), var(--accent-soft));box-shadow:var(--sh-1), inset 0 1px 0 var(--hi);}
+/* raised surfaces */
+.panel,.class-head,.rcard,dialog{border-radius:var(--r-lg);}
+.panel{border:1px solid color-mix(in srgb, var(--line) 70%, transparent);box-shadow:var(--sh-2), inset 0 1px 0 var(--hi);animation:rise .35s var(--ease);}
+@keyframes rise{from{opacity:0;transform:translateY(8px) scale(.995);}to{opacity:1;transform:none;}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97);}to{opacity:1;transform:none;}}
+@keyframes unfold{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+/* buttons with depth */
+.btn{border:1px solid color-mix(in srgb, var(--line) 85%, transparent);border-radius:var(--r-sm);background:linear-gradient(180deg, color-mix(in srgb, var(--surface) 100%, white 6%), color-mix(in srgb, var(--surface) 92%, var(--line)));box-shadow:var(--sh-1), inset 0 1px 0 var(--hi);transition:transform .15s, box-shadow .2s, border-color .2s, background .2s;font-weight:600;}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--sh-2), inset 0 1px 0 var(--hi);border-color:color-mix(in srgb, var(--accent) 45%, var(--line));}
+.btn:active{transform:translateY(1px);box-shadow:inset 0 2px 4px var(--lo);}
+.btn.primary{background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 82%, white), var(--accent) 55%, color-mix(in srgb, var(--accent) 85%, black));border-color:color-mix(in srgb, var(--accent) 80%, black);box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 -2px 0 rgba(0,0,0,.12) inset, 0 6px 16px -4px color-mix(in srgb, var(--accent) 55%, transparent), var(--sh-1);text-shadow:0 1px 0 rgba(0,0,0,.15);}
+.btn.primary:hover{box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 -2px 0 rgba(0,0,0,.12) inset, 0 10px 22px -6px color-mix(in srgb, var(--accent) 65%, transparent), var(--sh-2);}
+.btn.hero{padding:10px 18px;font-size:.98rem;}
+.btn:disabled{transform:none;box-shadow:none;}
+/* segmented controls: raised pill on a sunken track */
+.seg{background:var(--sunk);box-shadow:var(--sh-in);border-color:transparent;}
+.seg button{transition:background .2s, color .2s, box-shadow .25s, transform .15s;}
+.seg button:hover{color:var(--ink);}
+.seg button[aria-pressed="true"]{background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 85%, white), var(--accent));box-shadow:0 1px 0 rgba(255,255,255,.3) inset, 0 3px 8px -2px color-mix(in srgb, var(--accent) 60%, transparent);}
+.chip{transition:transform .15s, box-shadow .2s, background .2s;box-shadow:var(--sh-1);}
+.chip:hover{transform:translateY(-1px);}
+.chip[aria-pressed="true"]{background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 85%, white), var(--accent));box-shadow:0 3px 8px -2px color-mix(in srgb, var(--accent) 60%, transparent);}
+/* sunken inputs */
+.field input,.field select,.mk,.comment textarea,.opts textarea,.panel textarea,dialog input,.cg-row input,.bounds-grid input,.iain input,#oneName,#tutorText{box-shadow:var(--sh-in);border-color:color-mix(in srgb, var(--line) 80%, transparent) !important;border-radius:var(--r-sm) !important;transition:box-shadow .2s, border-color .2s, background .2s;}
+.field input:focus,.field select:focus,.mk:focus,.comment textarea:focus,.opts textarea:focus,.panel textarea:focus,dialog input:focus,#tutorText:focus{outline:none;border-color:var(--accent) !important;box-shadow:var(--sh-in), 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);}
+/* class header card */
+.class-head{background:linear-gradient(160deg, var(--surface), color-mix(in srgb, var(--surface) 90%, var(--accent-soft)));padding:16px 18px;box-shadow:var(--sh-2), inset 0 1px 0 var(--hi);border:1px solid color-mix(in srgb, var(--line) 60%, transparent);}
+.fam-badge{box-shadow:inset 0 1px 0 var(--hi), var(--sh-1);}
+/* roster as floating cards */
+.roster{border-top:0;display:flex;flex-direction:column;gap:8px;padding:6px 2px 10px;}
+.rhead{border-bottom:0;padding:4px 10px;}
+.st{border:1px solid color-mix(in srgb, var(--line) 60%, transparent);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--sh-1), inset 0 1px 0 var(--hi);transition:box-shadow .25s, transform .2s, border-color .25s;}
+.st:hover{box-shadow:var(--sh-2), inset 0 1px 0 var(--hi);transform:translateY(-1px);}
+.st.open{box-shadow:var(--sh-3), inset 0 1px 0 var(--hi);border-color:color-mix(in srgb, var(--accent) 35%, var(--line));transform:none;}
+.st.open .row{border-bottom:1px solid color-mix(in srgb, var(--line) 60%, transparent);}
+.row{padding:8px 10px;}
+.detail{animation:unfold .3s var(--ease);padding-top:14px;}
+/* 3D grade coin */
+.stamp{border:0;background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--stamp-bg) 40%, white) 0 18%, var(--stamp-bg) 46%, color-mix(in srgb, var(--stamp-bg) 70%, var(--stamp)) 100%);box-shadow:inset 0 2px 1px var(--coin-hi), inset 0 -3px 4px color-mix(in srgb, var(--stamp) 35%, transparent), 0 0 0 2px var(--stamp), 0 4px 8px -2px color-mix(in srgb, var(--stamp) 55%, transparent), 0 8px 14px -8px rgba(0,0,0,.35);transition:transform .35s var(--ease);}
+.st:hover .stamp:not(.empty){transform:rotate(-2deg) scale(1.06);}
+.stamp.empty{box-shadow:none;background:none;border:2px dashed var(--line);}
+.stamp.pred{box-shadow:inset 0 2px 1px var(--coin-hi), 0 0 0 2px var(--stamp), 0 0 0 5px var(--stamp-bg), 0 0 0 7px var(--stamp), 0 8px 14px -8px rgba(0,0,0,.35);}
+.status-bar{box-shadow:var(--sh-1), inset 0 1px 0 var(--hi);animation:rise .3s var(--ease);border-radius:var(--r-md);}
+dialog{box-shadow:var(--sh-3);border:1px solid color-mix(in srgb, var(--line) 60%, transparent);}
+dialog[open]{animation:pop .3s var(--ease);}
+dialog::backdrop{background:rgba(10,15,25,.38);backdrop-filter:blur(4px);}
+.credit{background:transparent;}
+/* import wizard */
+.imp-drop{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:16px;border:2px dashed color-mix(in srgb, var(--accent) 35%, var(--line));border-radius:var(--r-md);background:color-mix(in srgb, var(--accent-soft) 45%, transparent);transition:background .2s, border-color .2s;}
+.imp-drop.over{background:var(--accent-soft);border-color:var(--accent);}
+.imp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 16px;margin:14px 0;}
+.imp-grid .field select,.imp-grid .field input{width:100%;}
+.imp-sub{margin:14px 0 6px;font:600 .95rem/1.2 "Bricolage Grotesque",sans-serif;}
+.prev-wrap{overflow-x:auto;border-radius:var(--r-sm);box-shadow:var(--sh-in);margin-top:10px;}
+.prev{border-collapse:collapse;width:100%;font-size:.85rem;}
+.prev th,.prev td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+.prev th{color:var(--muted);font-weight:700;background:var(--sunk);}
+/* report cards view */
+.cards-top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;margin-bottom:14px;}
+.src-list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
+.src-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r-sm);background:var(--sunk);box-shadow:var(--sh-in);font-size:.9rem;}
+.cards-work{display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px;align-items:start;}
+.card-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:70vh;overflow:auto;padding:4px;}
+.card-list button{width:100%;text-align:left;border:1px solid color-mix(in srgb, var(--line) 60%, transparent);background:var(--surface);border-radius:var(--r-sm);padding:9px 12px;cursor:pointer;box-shadow:var(--sh-1);transition:transform .15s, box-shadow .2s;}
+.card-list button:hover{transform:translateY(-1px);box-shadow:var(--sh-2);}
+.card-list button[aria-current="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent), var(--sh-2);}
+.warnc{color:var(--warn);font-weight:700;}
+.rcard{background:var(--surface);border:1px solid color-mix(in srgb, var(--line) 60%, transparent);box-shadow:var(--sh-3), inset 0 1px 0 var(--hi);padding:22px 24px;animation:rise .3s var(--ease);}
+.rc-head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding-bottom:12px;border-bottom:2px solid var(--accent);}
+.rc-head h3{margin:2px 0;font:800 1.5rem/1.15 "Bricolage Grotesque",sans-serif;}
+.rc-school{margin:0;color:var(--accent);font-weight:700;font-size:.9rem;}
+.rc-sub{display:block;color:var(--muted);font-size:.8rem;font-weight:400;}
+.rc-badge{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;align-content:center;font:800 1.4rem/1 "Bricolage Grotesque",sans-serif;color:var(--on-accent);background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--accent) 55%, white), var(--accent) 60%);box-shadow:0 8px 18px -6px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 -3px 6px rgba(0,0,0,.2);}
+.rc-badge span{font-size:.62rem;font-weight:700;letter-spacing:.04em;}
+.rc-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.92rem;}
+.rc-table th{text-align:left;color:var(--muted);font-size:.8rem;padding:8px;border-bottom:1px solid var(--line);}
+.rc-table td{padding:10px 8px;border-bottom:1px solid color-mix(in srgb, var(--line) 60%, transparent);vertical-align:top;line-height:1.5;}
+.rc-table td:first-child{width:24%;}
+.rc-g{text-align:center;width:90px;font:800 1.25rem/1.2 "Bricolage Grotesque",sans-serif;color:var(--stamp);}
+.rc-tutor{margin-top:14px;padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb, var(--accent-soft) 60%, transparent);box-shadow:inset 0 1px 0 var(--hi);}
+.rc-tutor h4{margin:0 0 4px;font:600 1rem/1.2 "Bricolage Grotesque",sans-serif;}
+.rc-tutor p{margin:0;line-height:1.55;}
+.tutor-box{margin-top:16px;}
+.tutor-box textarea{width:100%;min-height:110px;padding:10px 12px;background:var(--sunk);color:var(--ink);font-size:.98rem;line-height:1.55;resize:vertical;border:1px solid var(--line);}
+@media (max-width:900px){.cards-work{grid-template-columns:1fr;}.card-list{max-height:none;}}
+
+.rail .navcard{justify-content:flex-start;}
+.setup-grid > .field:first-child{grid-column:span 2;}
+@media (max-width:560px){.setup-grid > .field:first-child{grid-column:auto;}}
+:root{--coin-hi:rgba(255,255,255,.7);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--coin-hi:rgba(255,255,255,.14);}}
+:root[data-theme="dark"]{--coin-hi:rgba(255,255,255,.14);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stamp:not(.empty){background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--stamp) 38%, var(--stamp-bg)) 0 20%, var(--stamp-bg) 62%, color-mix(in srgb, var(--stamp-bg) 70%, black) 100%);}}
+:root[data-theme="dark"] .stamp:not(.empty){background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--stamp) 38%, var(--stamp-bg)) 0 20%, var(--stamp-bg) 62%, color-mix(in srgb, var(--stamp-bg) 70%, black) 100%);}
+#printArea{display:none;}
+@media print{
+  body{background:#fff !important;}
+  body>*:not(#printArea){display:none !important;}
+  #printArea{display:block;}
+  #printArea .rcard{box-shadow:none;border:0;padding:0;animation:none;page-break-after:always;}
+  #printArea .rcard:last-child{page-break-after:auto;}
+  .rc-badge{box-shadow:none;}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;}html{scroll-behavior:auto;}}
+
 </style>
 </head>
 <body>
@@ -241,6 +379,10 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     <h2>Classes</h2>
     <ul id="classList"></ul>
     <button class="btn small add" id="addClassBtn" type="button">Add class</button>
+    <div class="rail-sec">
+      <h2>Form tutor</h2>
+      <ul><li><button type="button" class="navcard" id="cardsNav" aria-current="false"><span class="ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="1.5" width="11" height="13" rx="2"/><path d="M5 5h6M5 8h6M5 11h3.5"/></svg></span>Report cards</button></li></ul>
+    </div>
   </nav>
   <main>
     <section class="panel empty" id="emptyState" hidden>
@@ -269,6 +411,9 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
       <label class="field">Course name in comments
         <input id="course" type="text">
       </label>
+      <label class="field">Grade and division
+        <input id="grpIn" type="text" placeholder="e.g. Grade 10 B" title="Used to group students for report cards">
+      </label>
     </div>
     <div class="setup-line">
       <div class="field">Enter achievement as
@@ -283,6 +428,7 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     <p class="critkey" id="critKey"></p>
     <div class="actions">
       <button class="btn" id="unitBtn" type="button">Unit and concepts</button>
+      <button class="btn primary hero" id="importBtn" type="button">Import marksheet</button>
       <button class="btn" id="compsBtn" type="button">Components</button>
       <button class="btn" id="boundsBtn" type="button">Grade boundaries</button>
       <button class="btn" id="defaultsBtn" type="button">Set for whole class</button>
@@ -311,6 +457,38 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
       <label class="field" style="margin-top:10px">Other related concepts (separate with commas)<input id="rcOther" type="text"></label>
       </div>
       <div class="row-btns"><button class="btn" id="closeUnit" type="button">Done</button><span class="msg" id="unitMsg"></span></div>
+    </section>
+
+    <section class="panel" id="importPanel" hidden>
+      <h3 class="ptitle">Import marks from a marksheet</h3>
+      <p>Use your school’s Google Sheets or Excel marksheet. In Google Sheets choose File, then Download, then Microsoft Excel (.xlsx) or CSV. The file is read on this computer and is never uploaded.</p>
+      <div class="imp-drop" id="impDrop">
+        <label class="btn primary" style="cursor:pointer">Choose file<input type="file" id="impFile" accept=".xlsx,.csv,.tsv,.txt" hidden></label>
+        <span class="msg">or drag a .xlsx or .csv file here</span>
+      </div>
+      <details style="margin-top:10px"><summary class="msg" style="cursor:pointer">Or paste the sheet instead (select the whole table in Google Sheets, copy, paste here)</summary>
+        <textarea id="impPaste" placeholder="Paste the table here, including the header row"></textarea>
+        <div class="row-btns"><button class="btn" id="impPasteBtn" type="button">Use pasted table</button></div>
+      </details>
+      <div id="impMap" hidden>
+        <p class="imp-sub">1. Where is the data?</p>
+        <div class="imp-grid">
+          <label class="field" id="impSheetWrap">Sheet (tab)<select id="impSheet"></select></label>
+          <label class="field">Header row<select id="impHead"></select></label>
+          <label class="field">Student name column<select id="impName"></select></label>
+          <label class="field">Surname column (optional)<select id="impSur"></select></label>
+        </div>
+        <p class="imp-sub">2. Which rows belong to this class?</p>
+        <div class="imp-grid">
+          <label class="field">Grade or division column<select id="impFilt"></select></label>
+          <label class="field">Only rows where it equals<input id="impFiltVal" type="text" placeholder="e.g. 10B"></label>
+          <label class="field">Values in the sheet are<select id="impType"><option value="raw">Raw marks</option><option value="pct">Percentages</option><option value="native">Grades</option></select></label>
+        </div>
+        <p class="imp-sub">3. Match each column</p>
+        <div class="imp-grid" id="impComps"></div>
+        <div class="prev-wrap"><table class="prev"><thead><tr id="impPrevHead"></tr></thead><tbody id="impPrev"></tbody></table></div>
+      </div>
+      <div class="row-btns"><button class="btn primary" id="impGo" type="button" disabled>Import marks</button><button class="btn" id="closeImport" type="button">Close</button><span class="msg" id="impMsg" aria-live="polite"></span></div>
     </section>
 
     <section class="panel" id="compsPanel" hidden>
@@ -398,9 +576,43 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
       <ol class="roster" id="roster"></ol>
     </div>
     </div>
+    <section id="cardsView" hidden>
+      <div class="class-head"><div class="title-wrap"><span class="fam-badge">Form tutor</span><h2>Consolidated report cards</h2></div></div>
+      <section class="panel">
+        <p>Each subject teacher clicks Export, then Report card file, and sends you the file. Load all the files here to see one report per student with every subject, add a tutor comment, then print or export the whole division.</p>
+        <div class="cards-top">
+          <label class="btn primary hero" style="cursor:pointer">Load report card files<input type="file" id="cardFile" accept=".json" multiple hidden></label>
+          <label class="msg" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="cardOwn"> Include my own classes</label>
+          <label class="field">Tutor name<input id="tutorName" type="text" placeholder="e.g. Ms Ahmed"></label>
+        </div>
+        <ul class="src-list" id="cardSources"></ul>
+        <p class="msg" id="cardMsg" aria-live="polite" style="margin-top:8px"></p>
+      </section>
+      <section class="panel" id="cardEmpty"><p>No students yet. Load report card files, or add a Grade and division to your own classes and tick Include my own classes.</p></section>
+      <div id="cardWork" hidden>
+        <div class="cards-top">
+          <label class="field">Grade and division<select id="cardGroup"></select></label>
+          <button class="btn" id="tutorDraftAll" type="button">Draft missing tutor comments</button>
+          <button class="btn primary" id="cardPrint" type="button">Print or save as PDF</button>
+          <button class="btn" id="cardDoc" type="button">Word document</button>
+          <button class="btn" id="cardCsv" type="button">Summary sheet (.csv)</button>
+        </div>
+        <div class="cards-work">
+          <ul class="card-list" id="cardList"></ul>
+          <div>
+            <div id="cardPreview"></div>
+            <div class="tutor-box">
+              <label class="legend" for="tutorText">Tutor comment</label>
+              <textarea id="tutorText" placeholder="Write a short overall comment, or click Draft from subject results."></textarea>
+              <div class="row-btns" style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="btn" id="tutorDraft" type="button">Draft from subject results</button><span class="msg" id="tutorWc" style="margin-left:auto"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
-<footer class="credit">TeachersHub Report Writer, made by Muhammad Tariq. Contact <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a> or <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">LinkedIn</a>. <a href="privacy.html" target="_blank">Privacy policy</a>.</footer>
+<footer class="credit">TeachersHub Report Writer, made by Muhammad Tariq. Contact <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a> or <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">LinkedIn</a>.</footer>
 <div hidden>
 </div>
 
@@ -408,7 +620,7 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
 
 <dialog id="aboutDlg"><form method="dialog">
   <h3>TeachersHub Report Writer</h3>
-  <p class="dlg-p">Version 3.0</p>
+  <p class="dlg-p">Version 4.0</p>
   <p class="about-p">Write clear, personal end-of-term report comments in minutes for IB MYP and DP, British KS3, IGCSE and A Level (Cambridge and Pearson Edexcel), US letter-grade and NGSS standards-based, Indian CBSE, ICSE and ISC, or your own local curriculum. Enter marks or grades, choose a few options for each student, and the app drafts comments for you, offline or with an AI chatbot.</p>
   <p class="about-p"><b>Created by Muhammad Tariq</b><br>International science educator</p>
   <p class="about-p">Email: <a href="mailto:tariq.biotech639@gmail.com" target="_blank">tariq.biotech639@gmail.com</a><br>LinkedIn: <a href="https://www.linkedin.com/in/mtariq639" target="_blank" rel="noopener">linkedin.com/in/mtariq639</a></p>
@@ -429,12 +641,14 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     <li><b>Add students.</b> Paste your class list (numbered or not) or type names one by one and press Enter.</li>
     <li><b>Choose the curriculum.</b> Pick IB MYP or DP, British (KS3, Cambridge or Pearson Edexcel IGCSE, AS and A Level), US (letter grades or NGSS standards-based), Indian (CBSE, ICSE and ISC) or your own local curriculum. Then choose the year or grade, the subject group and the course name used in comments, such as Physics. The app shows the matching year in other systems.</li>
     <li><b>Check the assessment structure.</b> For IB DP, IGCSE, A Level, CBSE, ICSE and US classes, the app sets up the real papers, units or gradebook categories with their maximum marks and weightings, for example Paper 1A, Paper 1B, Paper 2 and the internal assessment for DP sciences. Choose SL or HL, Core or Extended, or Foundation or Higher where it applies. Click Components to edit them if your school differs.</li>
+    <li><b>Import your marksheet.</b> Click Import marksheet and choose the .xlsx or .csv file downloaded from Google Sheets or Excel. Pick the sheet, the name column and your grade and division, and the app matches the mark columns for you. It remembers your choices for next time.</li>
     <li><b>Enter marks.</b> Choose how to enter achievement: raw marks for each paper, the curriculum’s own scale (MYP criteria 0 to 8, or grades such as A*, 7 or A1) or marks out of 100. Type them on each row, or click Paste marks and paste from Excel. The overall grade is worked out for you. Use Grade boundaries to match your school’s policy.</li>
     <li><b>Set student options.</b> Use Set for whole class to give everyone a starting level in one click. Then click a student’s name to change their engagement, behaviour, progress, attendance, academic integrity, strengths, learner profile and ATL skills.</li>
     <li><b>Write comments.</b> Choose a comment length at the top, then click Write all comments. Templates work offline. AI chatbot mode gives you a prompt to paste into Gemini, ChatGPT or Claude, then you paste the reply back.</li>
     <li><b>Check and send.</b> Read and edit each comment, then copy it or use Export to move comments into ManageBac, Toddle or your school’s system.</li>
     <li><b>Keep a backup.</b> Everything saves on this computer automatically. Use Save backup to keep a copy or move to another PC.</li>
-  </ol>
+      <li><b>Make consolidated report cards.</b> Each subject teacher clicks Export, then Report card file, and sends it to the form tutor. The tutor opens Report cards, loads the files, adds a tutor comment for each student, and prints or exports the whole division in one go. Set Grade and division on each class so students are grouped correctly.</li>
+</ol>
   <div class="row-btns"><button class="btn primary" value="ok" type="submit">Got it</button></div>
 </form></dialog>
 
@@ -450,6 +664,7 @@ dialog .row-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
     <button class="btn primary" type="button" id="expCsv">Excel file (.csv)</button>
     <button class="btn" type="button" id="expDoc">Word document</button>
     <button class="btn" type="button" id="expCopy">Copy as text</button>
+    <button class="btn" type="button" id="expCards">Report card file (for the form tutor)</button>
   </div>
   <p class="msg" id="expMsg" style="margin:10px 0 0"></p>
   <div class="row-btns"><button class="btn" value="cancel" type="submit">Close</button></div>
@@ -972,7 +1187,7 @@ const newId = () => Math.random().toString(36).slice(2,10);
 function mkStudent(name, g, n){
   const parts = name.trim().split(/\s+/);
   return {id:newId(), name:name.trim(), first:parts[parts.length-1], pr:g==="f"?"she":g==="m"?"he":"they",
-    marks:Array(n).fill(null), eng:1, beh:1, hw:1, eff:1, prog:null, att:null, ai:null, lpS:[], lpG:"", str:[], atlS:"", atlD:"", note:"", comment:"", v:0};
+    marks:Array(n).fill(null), eng:1, beh:1, hw:1, eff:1, prog:null, att:null, ai:null, lpS:[], lpG:"", str:[], atlS:"", atlD:"", note:"", comment:"", pred:"", target:"", ia:[], co:{}, v:0};
 }
 function normStudent(st, n){
   if(!Array.isArray(st.lpS)) st.lpS = Array.isArray(st.lp) ? st.lp.slice(0,2) : [];
@@ -1003,6 +1218,8 @@ function normClass(c){
   const op = optsOf(c); if(op){ if(!op.includes(c.opt)) c.opt = op[op.length-1]; } else c.opt = "";
   if(!c.bounds || typeof c.bounds!=="object") c.bounds = {};
   if(!Array.isArray(c.comps)) c.comps = null;
+  if(typeof c.group!=="string") c.group = "";
+  if(!c.importMap || typeof c.importMap!=="object") c.importMap = null;
   ["unit","gc","rcOther","course","label"].forEach(k=>{ if(typeof c[k]!=="string") c[k] = k==="label" ? (c.id||"Class") : ""; });
   if(!Array.isArray(c.kc)) c.kc = [];
   if(!Array.isArray(c.rc)) c.rc = [];
@@ -1276,7 +1493,7 @@ function renderHead(){
   document.documentElement.dataset.fam = fam;
   $("clsTitle").textContent = c.label;
   $("famBadge").textContent = FAM[fam] + (curOf(c).board ? ", "+curOf(c).board : "");
-  $("course").value = c.course;
+  $("course").value = c.course; $("grpIn").value = c.group || "";
   $("curSel").value = c.cur;
   $("levelSel").innerHTML = curOf(c).levels.map(([n],i)=>`<option value="${i}">${esc(n)}</option>`).join("");
   $("levelSel").value = String(c.level);
@@ -1396,7 +1613,8 @@ function renderMode(){
 function renderAll(){
   renderRail(); renderMode();
   const has = !!cls();
-  $("classView").hidden = !has; $("emptyState").hidden = has;
+  $("classView").hidden = !has || cardsOn; $("emptyState").hidden = has || cardsOn; $("cardsView").hidden = !cardsOn;
+  $("cardsNav").setAttribute("aria-current", cardsOn);
   const who = [state.settings.teacher, state.settings.school].filter(Boolean).join(", ");
   $("teacherLine").textContent = who ? who+". Write end-of-term comments for parents." : "Enter marks, choose options for each student, and write end-of-term comments for parents.";
   if(has){ renderHead(); renderRoster(); }
@@ -1595,8 +1813,8 @@ function ask(title, value){
 
 /* ---------- Events ---------- */
 $("classList").addEventListener("click", e=>{
-  const b = e.target.closest("[data-cls]"); if(!b) return;
-  state.current = b.dataset.cls; state.open = (state.classes[state.current].students[0]||{}).id || null; $("pastePanel").hidden = true; $("boundsPanel").hidden = true; $("compsPanel").hidden = true; $("aiPanel").hidden = true; $("addPanel").hidden = true; $("unitPanel").hidden = true; $("defaultsPanel").hidden = true; hideBar();
+  const b = e.target.closest("[data-cls]"); if(!b) return; cardsOn = false; $("cardsView").hidden = true; $("cardsNav").setAttribute("aria-current", false);
+  state.current = b.dataset.cls; state.open = (state.classes[state.current].students[0]||{}).id || null; $("pastePanel").hidden = true; $("boundsPanel").hidden = true; $("compsPanel").hidden = true; $("importPanel").hidden = true; IMP.sheets = []; $("aiPanel").hidden = true; $("addPanel").hidden = true; $("unitPanel").hidden = true; $("defaultsPanel").hidden = true; hideBar();
   if(!state.classes[state.current].students.length) setTimeout(openAdd, 0);
   renderAll(); scheduleSave("settings");
 });
@@ -1675,6 +1893,7 @@ $("addClassBtn").addEventListener("click", async ()=>{
   const prev = cls();
   state.classes[id] = normClass({id, label:name, subject:"sci", course:"Science", cur:prev?prev.cur:"myp", entry:prev?prev.entry:"native", students:[]});
   state.order.push(id); state.current = id; state.open = null;
+  ["importPanel","compsPanel","boundsPanel","pastePanel","unitPanel","defaultsPanel","aiPanel"].forEach(x=>{ const el = $(x); if(el) el.hidden = true; }); IMP.sheets = [];
   renderAll(); persist(id); persist("settings");
   openAdd();
 });
@@ -1792,7 +2011,7 @@ roster.addEventListener("change", e=>{
 });
 
 /* ---------- Unit, class defaults, length, theme ---------- */
-const togglePanel = id => { const p = $(id); const show = p.hidden; ["unitPanel","defaultsPanel","addPanel","pastePanel","aiPanel","boundsPanel","compsPanel"].forEach(x=>$(x).hidden = true); p.hidden = !show; return show; };
+const togglePanel = id => { const p = $(id); const show = p.hidden; ["unitPanel","defaultsPanel","addPanel","pastePanel","aiPanel","boundsPanel","compsPanel","importPanel"].forEach(x=>$(x).hidden = true); p.hidden = !show; return show; };
 $("unitGc").innerHTML = `<option value="">Not set</option>` + GC.map(g=>`<option>${g}</option>`).join("");
 function renderUnit(){
   const c = cls(); if(!c) return;
@@ -1990,6 +2209,354 @@ $("expCopy").addEventListener("click", ()=>{
   copyText(rows.map(r=>r.name+"\n"+r.comment).join("\n\n"), $("expMsg"));
 });
 
+/* ---------- Spreadsheet reading (offline): .xlsx, .csv, .tsv, pasted ---------- */
+function parseDelimited(text){
+  text = String(text).replace(/^\ufeff/,"");
+  const first = text.split(/\r?\n/).find(l=>l.trim()) || "";
+  const d = first.includes("\t") ? "\t" : (first.split(";").length > first.split(",").length ? ";" : ",");
+  const rows = []; let row = [], cell = "", q = false;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q = false; } else cell += ch; continue; }
+    if(ch==='"' && cell==="") { q = true; continue; }
+    if(ch===d){ row.push(cell); cell=""; continue; }
+    if(ch==="\n" || ch==="\r"){ if(ch==="\r" && text[i+1]==="\n") i++; row.push(cell); rows.push(row); row=[]; cell=""; continue; }
+    cell += ch;
+  }
+  if(cell!=="" || row.length){ row.push(cell); rows.push(row); }
+  return rows.map(r=>r.map(x=>x.trim())).filter(r=>r.some(x=>x!==""));
+}
+async function unzip(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf), out = {};
+  let eocd = -1; for(let i=u8.length-22;i>=Math.max(0,u8.length-66000);i--) if(dv.getUint32(i,true)===0x06054b50){ eocd = i; break; }
+  if(eocd<0) throw new Error("This file is not a valid .xlsx file.");
+  let p = dv.getUint32(eocd+16,true); const n = dv.getUint16(eocd+10,true);
+  const dec = new TextDecoder();
+  for(let k=0;k<n;k++){
+    if(dv.getUint32(p,true)!==0x02014b50) break;
+    const method = dv.getUint16(p+10,true), csize = dv.getUint32(p+20,true), nlen = dv.getUint16(p+28,true), elen = dv.getUint16(p+30,true), clen = dv.getUint16(p+32,true), loc = dv.getUint32(p+42,true);
+    const name = dec.decode(u8.subarray(p+46,p+46+nlen));
+    out[name] = {method, csize, loc};
+    p += 46+nlen+elen+clen;
+  }
+  const read = async name => {
+    const e = out[name]; if(!e) return null;
+    const ln = dv.getUint16(e.loc+26,true), le = dv.getUint16(e.loc+28,true), start = e.loc+30+ln+le;
+    const data = u8.subarray(start, start+e.csize);
+    if(e.method===0) return dec.decode(data);
+    if(typeof DecompressionStream==="undefined") throw new Error("This browser cannot open .xlsx files. Download the sheet as .csv instead.");
+    const ds = new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return await new Response(ds).text();
+  };
+  return {names:Object.keys(out), read};
+}
+function colIndex(ref){ const m = /^([A-Z]+)/.exec(ref||""); if(!m) return -1; let n = 0; for(const ch of m[1]) n = n*26 + (ch.charCodeAt(0)-64); return n-1; }
+async function readXlsx(buf){
+  const z = await unzip(buf), xml = s => new DOMParser().parseFromString(s, "application/xml");
+  const wb = xml(await z.read("xl/workbook.xml")), rels = xml((await z.read("xl/_rels/workbook.xml.rels")) || "<r/>");
+  const relMap = {}; [...rels.getElementsByTagName("Relationship")].forEach(r=>relMap[r.getAttribute("Id")] = r.getAttribute("Target"));
+  const ssTxt = await z.read("xl/sharedStrings.xml"), ss = [];
+  if(ssTxt){ [...xml(ssTxt).getElementsByTagName("si")].forEach(si=>ss.push([...si.getElementsByTagName("t")].map(t=>t.textContent).join(""))); }
+  const sheets = [];
+  for(const s of [...wb.getElementsByTagName("sheet")]){
+    const rid = s.getAttribute("r:id") || s.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id");
+    let target = relMap[rid] || ""; target = target.replace(/^\/?xl\//,""); if(target.startsWith("/")) target = target.slice(1);
+    const txt = await z.read("xl/"+target); if(!txt) continue;
+    const doc = xml(txt), rows = [];
+    [...doc.getElementsByTagName("row")].forEach(r=>{
+      const ri = (+r.getAttribute("r")||rows.length+1)-1, arr = [];
+      [...r.getElementsByTagName("c")].forEach((c,ci)=>{
+        let idx = colIndex(c.getAttribute("r")); if(idx<0) idx = ci;
+        const t = c.getAttribute("t"), v = c.getElementsByTagName("v")[0];
+        let val = "";
+        if(t==="s") val = v ? (ss[+v.textContent]||"") : "";
+        else if(t==="inlineStr") val = [...c.getElementsByTagName("t")].map(x=>x.textContent).join("");
+        else if(t==="b") val = v && v.textContent==="1" ? "TRUE" : "FALSE";
+        else if(v){ val = v.textContent; if(/^-?\d+\.\d{4,}$/.test(val)) val = String(Math.round(parseFloat(val)*100)/100); }
+        arr[idx] = String(val).trim();
+      });
+      rows[ri] = Array.from(arr, x=>x||"");
+    });
+    sheets.push({name:s.getAttribute("name"), rows:Array.from(rows, r=>r||[]).filter(r=>r.some(x=>x!==""))});
+  }
+  return sheets;
+}
+/* ---------- Marksheet import wizard ---------- */
+const IMP = {sheets:[], file:"", si:0};
+const normH = s => String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+function guessHeaderRow(rows){
+  for(let i=0;i<Math.min(rows.length,12);i++){ const r = rows[i]||[], txt = r.filter(x=>x && isNaN(parseFloat(x))).length; if(txt>=2) return i; }
+  return 0;
+}
+function bestCol(headers, wanted, used){
+  const w = wanted.map(normH).filter(Boolean);
+  let best = -1, score = 0;
+  headers.forEach((h,i)=>{
+    if(used && used.has(i)) return;
+    const H = normH(h); if(!H) return;
+    w.forEach(x=>{ let sc = H===x ? 100 : (H.split(" ").includes(x) ? 70 : (H.startsWith(x+" ")||H.endsWith(" "+x) ? 60 : (x.length>3 && H.includes(x) ? 40 : 0))); if(sc>score){ score = sc; best = i; } });
+  });
+  return best;
+}
+function impSheet(){ return IMP.sheets[IMP.si] || IMP.sheets[0] || {rows:[]}; }
+function impHeaders(){ const s = impSheet(), hr = +$("impHead").value||0; return (s.rows[hr]||[]).map((h,i)=>h || ("Column "+String.fromCharCode(65+(i%26)))); }
+function colOpts(sel, none){ return (none?`<option value="-1">${none}</option>`:"") + impHeaders().map((h,i)=>`<option value="${i}" ${+sel===i?"selected":""}>${esc(h)}</option>`).join(""); }
+function renderImport(){
+  const c = cls(), K = comps(c), map = c.importMap || {}, s = impSheet();
+  $("impSheetWrap").hidden = IMP.sheets.length<2;
+  if(IMP.si>=IMP.sheets.length) IMP.si = 0;
+  $("impSheet").innerHTML = IMP.sheets.map((x,i)=>`<option value="${i}">${esc(x.name)} (${x.rows.length} rows)</option>`).join("");
+  $("impSheet").value = String(IMP.si);
+  if(!IMP.sheets.length){ $("impMap").hidden = true; return; }
+  $("impMap").hidden = false;
+  if($("impHead").dataset.sheet!==String(IMP.si)){
+    const hr = guessHeaderRow(s.rows); $("impHead").innerHTML = s.rows.slice(0,15).map((r,i)=>`<option value="${i}">Row ${i+1}: ${esc(r.filter(Boolean).slice(0,4).join(", ").slice(0,60))}</option>`).join(""); $("impHead").value = String(hr); $("impHead").dataset.sheet = String(IMP.si);
+  }
+  const H = impHeaders();
+  const byName = h => { if(!h) return -1; const i = H.findIndex(x=>normH(x)===normH(h)); return i; };
+  const used = new Set();
+  let nameI = byName(map.name); if(nameI<0) nameI = bestCol(H, ["student name","full name","name","student","pupil","learner"]); if(nameI<0) nameI = 0; used.add(nameI);
+  let surI = byName(map.sur); if(surI<0 && !map.name) surI = bestCol(H, ["surname","last name","family name"], used); if(surI===nameI) surI = -1; if(surI>=0) used.add(surI);
+  let filI = byName(map.filter); if(filI<0) filI = bestCol(H, ["division","section","class","form","homeroom","group","grade"], used);
+  $("impName").innerHTML = colOpts(nameI); $("impSur").innerHTML = colOpts(surI, "None, names are in one column");
+  $("impFilt").innerHTML = colOpts(filI, "Use every row");
+  if(map.filterVal!=null) $("impFiltVal").value = map.filterVal; else if(!$("impFiltVal").value && c.group) $("impFiltVal").value = c.group;
+  $("impType").value = map.type || (isMyp(c) ? (native(c)?"native":"pct") : c.entry);
+  $("impType").querySelector('[value="raw"]').hidden = isMyp(c);
+  $("impType").querySelector('[value="native"]').textContent = isMyp(c) ? "MYP criteria levels (0 to 8)" : "Grades or levels ("+scaleOf(c).name+")";
+  $("impComps").innerHTML = K.map((k,i)=>{
+    let ci = map.comps && map.comps[i] ? byName(map.comps[i]) : -1;
+    if(ci<0) ci = bestCol(H, [k.code, k.n, k.n.replace(/\s*\(.*\)$/,""), isMyp(c)?"criterion "+k.code.toLowerCase():"", isMyp(c)?"crit "+k.code.toLowerCase():""].filter(Boolean), used);
+    if(ci>=0) used.add(ci);
+    return `<label class="field">${esc(k.code)} ${esc(k.n)}${c.entry==="raw"&&!isMyp(c)?" (out of "+k.max+")":""}<select data-ic="${i}">${colOpts(ci, "Not in this sheet")}</select></label>`;
+  }).join("");
+  impPreview();
+}
+function impCollect(){
+  const c = cls(), K = comps(c), s = impSheet(), hr = +$("impHead").value||0;
+  const nameI = +$("impName").value, surI = +$("impSur").value, filI = +$("impFilt").value, fv = normH($("impFiltVal").value), type = $("impType").value;
+  const cols = [...$("impComps").querySelectorAll("[data-ic]")].map(el=>+el.value);
+  const rows = [], skipped = [];
+  s.rows.slice(hr+1).forEach(r=>{
+    let name = (r[nameI]||"").trim(); if(surI>=0 && r[surI]) name = (r[surI].trim()+" "+name).trim();
+    if(!name || /^(total|average|mean|max|min|class average)/i.test(name) || normH(name)===normH(impHeaders()[nameI])) return;
+    if(filI>=0 && fv){ if(normGroup(r[filI])!==normGroup(fv) && normH(r[filI])!==fv) return; }
+    const marks = cols.map((ci,i)=>{
+      if(ci<0) return undefined;
+      const raw = (r[ci]||"").trim(); if(raw==="" || /^(-|n\/?a|ab|abs|absent|x)$/i.test(raw)) return null;
+      let v = null;
+      if(type==="native" && !isMyp(c)){ const g = scaleOf(c).g.findIndex(x=>x[0].toLowerCase()===raw.toLowerCase()); v = g>=0 ? g : null; }
+      else { const n = parseFloat(raw.replace("%","")); if(!isNaN(n)){
+        if(type==="pct") v = fromPct(c, i, n);
+        else if(type==="raw") v = c.entry==="raw" ? n : fromPct(c, i, n/K[i].max*100);
+        else v = isMyp(c) ? (native(c) ? n : fromPct(c, i, n*12.5)) : n;
+        if(v!=null && (v<0 || v>maxOf(c,i)+1e-9)) v = null; } }
+      if(v==null) skipped.push(name+" ("+K[i].code+": "+raw+")");
+      return v;
+    });
+    rows.push({name, marks});
+  });
+  return {rows, skipped, map:{sheet:impSheet().name, name:impHeaders()[nameI], sur:surI>=0?impHeaders()[surI]:"", filter:filI>=0?impHeaders()[filI]:"", filterVal:$("impFiltVal").value.trim(), type, comps:cols.map(ci=>ci>=0?impHeaders()[ci]:"")}};
+}
+function impPreview(){
+  const c = cls(), {rows, skipped} = impCollect();
+  const known = rows.filter(r=>findStudent(c, r.name)).length;
+  $("impMsg").className = "msg" + (rows.length ? " good" : " err");
+  $("impMsg").textContent = rows.length ? `Ready: ${rows.length} students (${known} already in this class, ${rows.length-known} new).` + (skipped.length ? ` ${skipped.length} values will be skipped because they are not valid for this class.` : "")
+    : "No student rows found. Check the name column, header row and filter.";
+  $("impGo").disabled = !rows.length;
+  $("impPrev").innerHTML = rows.slice(0,5).map(r=>`<tr><td>${esc(r.name)}</td>${r.marks.map((m,i)=>`<td>${m===undefined?"·":m==null?"–":esc(markLabel(c,i,m))}</td>`).join("")}</tr>`).join("");
+  $("impPrevHead").innerHTML = `<th>Student</th>${comps(c).map(k=>`<th>${esc(k.code)}</th>`).join("")}`;
+}
+async function impLoadFile(file){
+  IMP.file = file.name; $("impMsg").className = "msg"; $("impMsg").textContent = "Reading "+file.name+"…";
+  try{
+    if(/\.xlsx$/i.test(file.name)) IMP.sheets = await readXlsx(await file.arrayBuffer());
+    else if(/\.xls$/i.test(file.name)) throw new Error("Old .xls files cannot be read. In Excel or Google Sheets, save or download as .xlsx or .csv.");
+    else IMP.sheets = [{name:file.name, rows:parseDelimited(await file.text())}];
+    IMP.sheets = IMP.sheets.filter(s=>s.rows.length);
+    if(!IMP.sheets.length) throw new Error("No data was found in this file.");
+    const want = (cls().importMap||{}).sheet; IMP.si = Math.max(0, IMP.sheets.findIndex(x=>x.name===want));
+    $("impHead").dataset.sheet = ""; renderImport();
+  }catch(e){ $("impMsg").className = "msg err"; $("impMsg").textContent = e.message || "Could not read this file."; $("impMap").hidden = true; }
+}
+
+/* ---------- Consolidated report cards ---------- */
+const CARDS_KEY = "thrw-cards";
+const cards = {sources:[], tutor:{}, tutorName:"", own:true, group:"", student:""};
+function loadCards(){ try{ const r = JSON.parse(localStorage.getItem(CARDS_KEY)||"null"); if(r){ cards.sources = Array.isArray(r.sources)?r.sources:[]; cards.tutor = r.tutor||{}; cards.tutorName = r.tutorName||""; cards.own = r.own!==false; } }catch(e){} }
+function saveCards(){ try{ localStorage.setItem(CARDS_KEY, JSON.stringify({sources:cards.sources, tutor:cards.tutor, tutorName:cards.tutorName, own:cards.own})); }catch(e){ setSaved("Could not save report card data. Storage may be full."); } }
+const normName = s => String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z\s'-]/g," ").split(/\s+/).filter(Boolean).sort().join(" ");
+const normGroup = s => String(s||"").toLowerCase().replace(/\b(grade|year|class|division|section|form|gr|yr)\b/g," ").replace(/[^a-z0-9]+/g,"");
+function ovNorm(c, ov){
+  if(!ov) return null;
+  if(isMyp(c)) return ov.g/7;
+  if(ov.pct!=null && !ov.pred) return ov.pct/100;
+  const g = scaleOf(c).g, i = g.findIndex(x=>x[0]===ov.lab); return g.length>1 && i>=0 ? 1 - i/(g.length-1) : null;
+}
+function classPack(c){
+  const K = comps(c);
+  return {group:(c.group||c.label).trim(), label:c.label, subject:plainSubj(c)+(c.opt?" "+c.opt:""), course:c.course||plainSubj(c), curriculum:curOf(c).name, level:levelName(c),
+    teacher:state.settings.teacher||"", term:state.settings.term||"",
+    students:c.students.map(st=>{ const ov = overall(c, st); return {name:st.name, first:st.first, grade:ov?ov.lab:"", gradeNote:ov&&ov.pred?"predicted":(ov&&ov.partial?"based on work so far":""), avg:ov&&ov.pct!=null&&!ov.pred?ov.pct+"%":"", norm:ovNorm(c, ov),
+      target:st.target||"", marks:K.map((k,i)=>({code:k.code, name:k.n, v:st.marks[i]==null?"":markLabel(c,i,st.marks[i])})), comment:st.comment.trim(),
+      att:st.att==null?"":LEVELS.att[st.att], eff:LEVELS.eff[st.eff], beh:LEVELS.beh[st.beh]}; })};
+}
+function ownPacks(){ return state.order.map(id=>state.classes[id]).filter(Boolean).filter(c=>c.students.length).map(classPack); }
+function allPacks(){ return cards.sources.flatMap(s=>s.classes.map(p=>Object.assign({}, p, {src:s.id, teacher:p.teacher||s.teacher}))).concat(cards.own ? ownPacks().map(p=>Object.assign(p,{src:"own"})) : []); }
+function cardGroups(){
+  const g = {};
+  allPacks().forEach(p=>{
+    const k = normGroup(p.group) || "ungrouped";
+    if(!g[k]) g[k] = {key:k, label:p.group||"Ungrouped", students:{}};
+    p.students.forEach(s=>{
+      const nk = normName(s.name); if(!nk) return;
+      const S = g[k].students[nk] || (g[k].students[nk] = {key:nk, name:s.name, first:s.first, subjects:[]});
+      S.subjects.push(Object.assign({}, s, {subject:p.subject, course:p.course, teacher:p.teacher, curriculum:p.curriculum, level:p.level, term:p.term}));
+    });
+  });
+  Object.values(g).forEach(G=>Object.values(G.students).forEach(S=>S.subjects.sort((a,b)=>a.course.localeCompare(b.course))));
+  return g;
+}
+function tutorDraft(S){
+  const subs = S.subjects.filter(x=>x.norm!=null), N = S.first || S.name.split(" ").pop();
+  if(!subs.length) return `${N} has worked across ${S.subjects.length} subject${S.subjects.length>1?"s":""} this term.`;
+  const avg = subs.reduce((a,x)=>a+x.norm,0)/subs.length, sorted = subs.slice().sort((a,b)=>b.norm-a.norm);
+  const top = sorted.slice(0, Math.min(2, sorted.length)).map(x=>x.course), low = sorted.length>2 ? sorted[sorted.length-1] : null;
+  const tone = avg>=.8 ? "an excellent term" : avg>=.62 ? "a strong term" : avg>=.45 ? "a steady term" : "a challenging term";
+  const out = [S.subjects.length>1 ? `${N} has had ${tone} across ${S.subjects.length} subjects.` : `${N} has had ${tone} in ${S.subjects[0].course}.`];
+  if(top.length>1) out.push(`Particular strengths this term are in ${top[0]} and ${top[1]}.`);
+  const effs = S.subjects.map(x=>x.eff).filter(Boolean), concernEff = effs.filter(e=>/limited|satisfactory/i.test(e)).length;
+  if(concernEff>=2) out.push(`Several teachers would like to see more consistent effort, and this will make a real difference to results.`);
+  else if(effs.filter(e=>/outstanding/i.test(e)).length>=2) out.push(`Teachers across subjects praise ${N}’s outstanding effort.`);
+  const att = S.subjects.map(x=>x.att).find(a=>/concern/i.test(a||""));
+  if(att) out.push(`Improving attendance and punctuality is an important priority for next term.`);
+  if(low && low.norm < avg-0.08) out.push(`${low.course} is the main area to focus on next term, and ${N} should use the subject teacher’s advice to close the gap.`);
+  else if(subs.length===1) out.push(avg<.45 ? `The priority next term is to act on the subject teacher’s advice and to ask for help early.` : `The next step is to build on this success and aim higher still.`);
+  else out.push(avg<.45 ? `The priority next term is to build on the strongest subjects and to ask for help early in subjects that feel difficult.` : `The next step is to keep this balance across subjects while aiming higher in each one.`);
+  return out.join(" ");
+}
+function renderCards(){
+  const G = cardGroups(), keys = Object.keys(G).sort((a,b)=>G[a].label.localeCompare(G[b].label, undefined, {numeric:true}));
+  $("cardOwn").checked = cards.own; $("tutorName").value = cards.tutorName;
+  $("cardSources").innerHTML = (cards.sources.length ? cards.sources.map(s=>`<li><span><b>${esc(s.teacher||"Teacher")}</b> ${esc(s.classes.map(p=>p.course+" "+p.group).join(", "))} <span class="msg">(${s.classes.reduce((a,p)=>a+p.students.length,0)} students, ${esc(s.file)})</span></span><button class="btn small danger" type="button" data-rmsrc="${esc(s.id)}">Remove</button></li>`).join("") : `<li class="msg">No files loaded yet. Ask each subject teacher to export a report card file, then load them here.</li>`);
+  if(!keys.includes(cards.group)) cards.group = keys[0] || "";
+  $("cardGroup").innerHTML = keys.map(k=>`<option value="${esc(k)}">${esc(G[k].label)} (${Object.keys(G[k].students).length} students)</option>`).join("");
+  $("cardGroup").value = cards.group;
+  $("cardEmpty").hidden = !!keys.length; $("cardWork").hidden = !keys.length;
+  if(!keys.length) return;
+  const grp = G[cards.group], studs = Object.values(grp.students).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!grp.students[cards.student]) cards.student = studs[0] ? studs[0].key : "";
+  const maxSub = Math.max(...studs.map(s=>s.subjects.length));
+  $("cardList").innerHTML = studs.map(s=>{ const done = s.subjects.filter(x=>x.comment).length, tut = (cards.tutor[cards.group]||{})[s.key];
+    return `<li><button type="button" data-card="${esc(s.key)}" aria-current="${s.key===cards.student}"><span class="nm">${esc(s.name)}</span><span class="sub">${s.subjects.length} subject${s.subjects.length>1?"s":""}, ${done} comment${done===1?"":"s"}${tut?", tutor comment":""}${s.subjects.length<maxSub?' <b class="warnc">missing subjects</b>':""}</span></button></li>`; }).join("");
+  const S = grp.students[cards.student]; if(S) $("cardPreview").innerHTML = cardHtml(S, grp, false);
+  const t = (cards.tutor[cards.group]||{})[cards.student] || "";
+  $("tutorText").value = t; $("tutorWc").textContent = words(t)+" words";
+}
+function cardHtml(S, grp, forPrint){
+  const school = state.settings.school || "", term = (S.subjects[0]||{}).term || state.settings.term || "";
+  const tut = (cards.tutor[grp.key]||{})[S.key] || "";
+  const rows = S.subjects.map(x=>`<tr><td><b>${esc(x.course)}</b><span class="rc-sub">${esc(x.curriculum)}${x.level?", "+esc(x.level):""}${x.teacher?"<br>"+esc(x.teacher):""}</span></td>
+    <td class="rc-g">${x.grade?esc(x.grade):"–"}${x.gradeNote?`<span class="rc-sub">${esc(x.gradeNote)}</span>`:""}${x.target?`<span class="rc-sub">Target ${esc(x.target)}</span>`:""}</td>
+    <td>${x.comment?esc(x.comment):'<span class="rc-sub">No comment yet</span>'}</td></tr>`).join("");
+  return `<article class="rcard">
+    <header class="rc-head"><div><p class="rc-school">${esc(school||"School report")}</p><h3>${esc(S.name)}</h3><p class="rc-sub">${esc(grp.label)}, ${esc(term)}</p></div><div class="rc-badge">${S.subjects.length}<span>subjects</span></div></header>
+    <table class="rc-table"><thead><tr><th>Subject</th><th>Grade</th><th>Comment</th></tr></thead><tbody>${rows}</tbody></table>
+    ${tut ? `<section class="rc-tutor"><h4>Tutor comment${cards.tutorName?", "+esc(cards.tutorName):""}</h4><p>${esc(tut)}</p></section>` : (forPrint?"":`<p class="rc-sub">No tutor comment yet.</p>`)}
+  </article>`;
+}
+function cardsDocHtml(grp){
+  const studs = Object.values(grp.students).sort((a,b)=>a.name.localeCompare(b.name));
+  const css = `body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#18222E}h3{font-size:16pt;margin:0}h4{font-size:11.5pt;margin:12pt 0 4pt}.rc-school{color:#2F3E9E;font-weight:bold;margin:0}.rc-sub{display:block;color:#56636F;font-size:9pt}.rc-badge{display:none}table{border-collapse:collapse;width:100%;margin-top:10pt}th{background:#E2E6F7;text-align:left;padding:5pt;border:1px solid #C9D0EA}td{vertical-align:top;padding:5pt;border:1px solid #D3DAE1}td.rc-g{font-weight:bold;font-size:12pt;text-align:center;width:60pt}.rc-head{border-bottom:2px solid #2F3E9E;padding-bottom:6pt}.page{page-break-after:always}`;
+  return `<html><head><meta charset="utf-8"><style>${css}</style></head><body>` + studs.map((S,i)=>`<div class="${i<studs.length-1?"page":""}">${cardHtml(S, grp, true)}</div>`).join("") + `</body></html>`;
+}
+function exportTeacherFile(scope){
+  const ids = scope==="all" ? state.order : [state.current];
+  const packs = ids.map(id=>state.classes[id]).filter(c=>c && c.students.length).map(classPack);
+  if(!packs.length) return 0;
+  const data = {app:"teachershub-report-writer", kind:"report-card-file", v:1, exported:new Date().toISOString(), teacher:state.settings.teacher||"", school:state.settings.school||"", term:state.settings.term||"", classes:packs};
+  const who = (state.settings.teacher||"teacher").replace(/[^A-Za-z0-9]+/g,"-");
+  download(`report-card-file-${who}-${fileStamp()}.json`, JSON.stringify(data), "application/json");
+  return packs.reduce((a,p)=>a+p.students.length,0);
+}
+async function loadCardFiles(files){
+  let ok = 0, bad = [];
+  for(const f of files){
+    try{
+      const d = JSON.parse(await f.text());
+      if(d.kind!=="report-card-file" || !Array.isArray(d.classes)) throw 0;
+      const id = (d.teacher||"t")+"|"+d.classes.map(p=>p.label).join(",");
+      cards.sources = cards.sources.filter(s=>s.id!==id);
+      cards.sources.push({id, file:f.name, teacher:d.teacher, term:d.term, classes:d.classes}); ok++;
+    }catch(e){ bad.push(f.name); }
+  }
+  saveCards(); renderCards();
+  $("cardMsg").className = "msg " + (bad.length ? "err" : "good");
+  $("cardMsg").textContent = (ok ? `Loaded ${ok} file${ok>1?"s":""}. ` : "") + (bad.length ? `Not a report card file: ${bad.join(", ")}.` : "");
+}
+function showCards(on){
+  $("cardsView").hidden = !on; $("classView").hidden = on || !cls(); $("emptyState").hidden = on || !!cls();
+  $("cardsNav").setAttribute("aria-current", on);
+  document.querySelectorAll("#classList button").forEach(b=>b.setAttribute("aria-current", !on && b.dataset.cls===state.current));
+  if(on){ document.documentElement.dataset.fam = "ib"; renderCards(); } else if(cls()) renderHead();
+}
+
+/* ---------- v4 wiring ---------- */
+let cardsOn = false;
+$("grpIn").addEventListener("input", e=>{ const c = cls(); if(!c) return; c.group = e.target.value.slice(0,40); scheduleSave(c.id); });
+$("importBtn").addEventListener("click", ()=>{ if(togglePanel("importPanel")){ if(IMP.sheets.length) renderImport(); else { $("impMap").hidden = true; $("impMsg").className = "msg"; $("impMsg").textContent = cls().importMap ? "Your column choices from last time will be reused." : ""; } } });
+$("closeImport").addEventListener("click", ()=>{ $("importPanel").hidden = true; });
+$("impFile").addEventListener("change", e=>{ const f = e.target.files[0]; if(f) impLoadFile(f); e.target.value = ""; });
+const drop = $("impDrop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e=>{ const f = e.dataTransfer.files[0]; if(f) impLoadFile(f); });
+$("impPasteBtn").addEventListener("click", ()=>{ const t = $("impPaste").value; if(!t.trim()) return; IMP.si = 0; IMP.sheets = [{name:"Pasted table", rows:parseDelimited(t)}]; $("impHead").dataset.sheet = ""; renderImport(); });
+$("impSheet").addEventListener("change", e=>{ IMP.si = +e.target.value; $("impHead").dataset.sheet = ""; renderImport(); });
+$("impHead").addEventListener("change", ()=>{ $("impHead").dataset.sheet = String(IMP.si); renderImport(); });
+["impName","impSur","impFilt","impType"].forEach(id=>$(id).addEventListener("change", impPreview));
+$("impFiltVal").addEventListener("input", impPreview);
+$("impComps").addEventListener("change", impPreview);
+$("impGo").addEventListener("click", ()=>{
+  const c = cls(), n = comps(c).length, {rows, skipped, map} = impCollect();
+  let added = 0, updated = 0;
+  rows.forEach(r=>{
+    let st = findStudent(c, r.name) || c.students.find(x=>normName(x.name)===normName(r.name));
+    if(!st){ st = mkStudent(r.name, "", n); c.students.push(st); added++; } else updated++;
+    r.marks.forEach((m,i)=>{ if(m!==undefined) st.marks[i] = m; });
+  });
+  c.importMap = map;
+  if(!state.open && c.students[0]) state.open = c.students[0].id;
+  renderRail(); renderRoster(); scheduleSave(c.id);
+  $("impMsg").className = "msg good";
+  $("impMsg").textContent = `Imported marks for ${rows.length} students (${updated} updated, ${added} added).` + (skipped.length ? ` Skipped ${skipped.length} values: ${skipped.slice(0,4).join(", ")}${skipped.length>4?"…":""}` : "") + " These column choices will be reused next time.";
+});
+/* report cards */
+$("cardsNav").addEventListener("click", ()=>{ cardsOn = true; showCards(true); });
+$("cardOwn").addEventListener("change", e=>{ cards.own = e.target.checked; saveCards(); renderCards(); });
+$("cardFile").addEventListener("change", e=>{ if(e.target.files.length) loadCardFiles([...e.target.files]); e.target.value = ""; });
+$("cardSources").addEventListener("click", e=>{ const b = e.target.closest("[data-rmsrc]"); if(!b) return; cards.sources = cards.sources.filter(s=>s.id!==b.dataset.rmsrc); saveCards(); renderCards(); });
+$("cardGroup").addEventListener("change", e=>{ cards.group = e.target.value; cards.student = ""; renderCards(); });
+$("cardList").addEventListener("click", e=>{ const b = e.target.closest("[data-card]"); if(!b) return; cards.student = b.dataset.card; renderCards(); });
+$("tutorName").addEventListener("input", e=>{ cards.tutorName = e.target.value; saveCards(); });
+$("tutorText").addEventListener("input", e=>{ (cards.tutor[cards.group] ||= {})[cards.student] = e.target.value; $("tutorWc").textContent = words(e.target.value)+" words"; saveCards(); const S = cardGroups()[cards.group]; if(S && S.students[cards.student]) $("cardPreview").innerHTML = cardHtml(S.students[cards.student], S, false); });
+$("tutorDraft").addEventListener("click", ()=>{ const G = cardGroups()[cards.group]; const S = G && G.students[cards.student]; if(!S) return; (cards.tutor[cards.group] ||= {})[cards.student] = tutorDraft(S); saveCards(); renderCards(); });
+$("tutorDraftAll").addEventListener("click", ()=>{ const G = cardGroups()[cards.group]; if(!G) return; const t = (cards.tutor[cards.group] ||= {}); let n = 0; Object.values(G.students).forEach(S=>{ if(!t[S.key]){ t[S.key] = tutorDraft(S); n++; } }); saveCards(); renderCards(); $("cardMsg").className = "msg good"; $("cardMsg").textContent = n ? `Drafted ${n} tutor comments. Read and edit each one before printing.` : "Every student already has a tutor comment."; });
+$("cardDoc").addEventListener("click", ()=>{ const G = cardGroups()[cards.group]; if(!G) return; download(`report-cards-${G.label.replace(/[^A-Za-z0-9]+/g,"-")}-${fileStamp()}.doc`, cardsDocHtml(G), "application/msword"); $("cardMsg").className = "msg good"; $("cardMsg").textContent = `Exported ${Object.keys(G.students).length} report cards. Each student starts on a new page in Word.`; });
+$("cardPrint").addEventListener("click", ()=>{ const G = cardGroups()[cards.group]; if(!G) return; $("printArea").innerHTML = Object.values(G.students).sort((a,b)=>a.name.localeCompare(b.name)).map(S=>cardHtml(S, G, true)).join(""); window.print(); });
+$("cardCsv").addEventListener("click", ()=>{
+  const G = cardGroups()[cards.group]; if(!G) return;
+  const studs = Object.values(G.students).sort((a,b)=>a.name.localeCompare(b.name)), subs = [...new Set(studs.flatMap(s=>s.subjects.map(x=>x.course)))].sort();
+  const q = v => '"' + String(v??"").replace(/"/g,'""') + '"';
+  const head = ["Student","Division"].concat(subs.flatMap(x=>[x+" grade", x+" comment"])).concat(["Tutor comment"]);
+  const lines = [head.map(q).join(",")].concat(studs.map(S=>[S.name, G.label].concat(subs.flatMap(x=>{ const r = S.subjects.find(y=>y.course===x); return r ? [r.grade, r.comment] : ["",""]; })).concat([(cards.tutor[G.key]||{})[S.key]||""]).map(q).join(",")));
+  download(`report-cards-${G.label.replace(/[^A-Za-z0-9]+/g,"-")}-${fileStamp()}.csv`, "\ufeff"+lines.join("\r\n"), "text/csv;charset=utf-8");
+  $("cardMsg").className = "msg good"; $("cardMsg").textContent = "Exported a summary sheet with one row per student. It opens in Excel or Google Sheets.";
+});
+$("expCards").addEventListener("click", ()=>{ const n = exportTeacherFile($("expScope").value); $("expMsg").className = "msg " + (n?"good":"err"); $("expMsg").textContent = n ? `Saved a report card file with ${n} students. Send it to the form tutor or coordinator, who loads it under Report cards.` : "There are no students to export."; });
+loadCards();
+
 /* ---------- Start ---------- */
 loadLocal();
 state.open = cls() ? ((cls().students[0]||{}).id || null) : null;
@@ -1998,7 +2565,7 @@ $("lengthSel").value = state.settings.length;
 applyTheme();
 renderAll();
 if(firstRun) setTimeout(()=>openMe(true), 200);
-if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
 </script>
+<div id="printArea"></div>
 </body>
 </html>
