@@ -1,4 +1,4 @@
-const CACHE = "teachershub-report-writer-v4.0.0";
+const CACHE = "teachershub-report-writer-v4.0.1";
 const FILES = ["./","index.html","manifest.webmanifest","privacy.html",
   "icons/icon-192.png","icons/icon-512.png","icons/maskable-512.png","icons/apple-touch-icon.png",
   "fonts/atkinson-hyperlegible-latin-400-normal.woff2","fonts/atkinson-hyperlegible-latin-700-normal.woff2",
